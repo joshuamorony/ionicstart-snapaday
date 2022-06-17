@@ -1,7 +1,9 @@
-describe('Home', () => {
-  beforeEach(() => {});
+import { navigateToHomePage } from 'cypress/support/utils';
 
-  it('works', () => {
-    cy.visit('/');
+describe('Home', () => {
+  beforeEach(() => {
+    navigateToHomePage();
   });
+
+  it('can take a photo and display it', () => {});
 });
