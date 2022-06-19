@@ -27,6 +27,7 @@
     "@capacitor/haptics": "1.1.4",
     "@capacitor/keyboard": "1.2.2",
     "@capacitor/status-bar": "1.0.8",
+    "@hirez_io/observer-spy": "^2.2.0",
     "@ionic/angular": "^6.1.9",
     "rxjs": "~6.6.0",
     "tslib": "^2.2.0",
