@@ -51,7 +51,15 @@ describe('PhotoService', () => {
       );
     });
 
-    it('should use data url result type if running as PWA', () => {});
+    it('should use data url result type if running as PWA', async () => {
+      jest.spyOn(platform, 'is').mockReturnValue(false);
+
+      await service.takePhoto();
+
+      expect(Camera.getPhoto).toHaveBeenCalledWith(
+        expect.objectContaining({ resultType: CameraResultType.DataUrl })
+      );
+    });
 
     it('should use the Camera as the source', () => {});
 

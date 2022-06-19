@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Camera, ImageOptions, CameraResultType } from '@capacitor/camera';
+import { Platform } from '@ionic/angular';
 import { BehaviorSubject } from 'rxjs';
 import { Photo } from '../../../shared/interfaces/photo';
 
@@ -9,13 +10,17 @@ import { Photo } from '../../../shared/interfaces/photo';
 export class PhotoService {
   private photos$ = new BehaviorSubject<Photo[]>([]);
 
+  constructor(private platform: Platform) {}
+
   getPhotos() {
     return this.photos$.asObservable();
   }
 
   async takePhoto() {
     const options: ImageOptions = {
-      resultType: CameraResultType.Uri,
+      resultType: this.platform.is('capacitor')
+        ? CameraResultType.Uri
+        : CameraResultType.DataUrl,
     };
 
     const photo = await Camera.getPhoto(options);
