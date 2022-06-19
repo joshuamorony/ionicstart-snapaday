@@ -22,4 +22,6 @@ describe('PhotoListComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should call the takePhoto method in the photo service when take photo button clicked', () => {});
 });
