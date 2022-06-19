@@ -9,7 +9,7 @@ import { IonicModule } from '@ionic/angular';
   template: `
     <ion-header>
       <ion-toolbar>
-        <ion-title></ion-title>
+        <ion-title>Snapaday</ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content></ion-content>
@@ -23,7 +23,6 @@ export class HomePageComponent {
 @NgModule({
   imports: [
     CommonModule,
-    FormsModule,
     IonicModule,
     RouterModule.forChild([
       {
