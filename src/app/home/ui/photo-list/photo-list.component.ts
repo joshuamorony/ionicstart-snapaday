@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, NgModule } from '@angular/core';
+import { Component, Input, NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
+import { Photo } from '../../../shared/interfaces/photo';
 
 @Component({
   selector: 'app-photo-list',
@@ -9,6 +10,8 @@ import { IonicModule } from '@ionic/angular';
   styles: [],
 })
 export class PhotoListComponent {
+  @Input() photos!: Photo[];
+
   constructor() {}
 }
 
