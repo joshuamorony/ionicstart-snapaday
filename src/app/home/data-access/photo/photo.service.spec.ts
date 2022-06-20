@@ -56,12 +56,6 @@ describe('PhotoService', () => {
   });
 
   describe('takePhoto()', () => {
-    it('should cause value returned from Camera.getPhoto to be emitted on getPhotos() stream', async () => {
-      const observerSpy = subscribeSpyTo(service.getPhotos());
-      await service.takePhoto();
-      expect(observerSpy.getLastValue()?.[0].path).toContain('test-path');
-    });
-
     it('should use URI result type if running natively', async () => {
       jest.spyOn(platform, 'is').mockReturnValue(true);
 
@@ -96,7 +90,7 @@ describe('PhotoService', () => {
       expect(Filesystem.readFile).not.toHaveBeenCalled();
     });
 
-    it('should cause result to emit with result of getPhoto as the path if not running natively', async () => {
+    it('should cause result to emit with result of getPhoto as the dataUrl if not running natively', async () => {
       const observerSpy = subscribeSpyTo(service.getPhotos());
 
       jest.spyOn(platform, 'is').mockReturnValue(false);
@@ -104,7 +98,7 @@ describe('PhotoService', () => {
 
       const result = observerSpy.getLastValue();
 
-      expect(result?.[0].path).toEqual('test-path');
+      expect(result?.[0].path).toEqual('test-dataUrl');
     });
 
     describe('should save result to file system if running natively', () => {
