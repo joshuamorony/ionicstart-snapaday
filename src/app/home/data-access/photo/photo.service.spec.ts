@@ -96,8 +96,15 @@ describe('PhotoService', () => {
       expect(Filesystem.readFile).not.toHaveBeenCalled();
     });
 
-    it('should cause result to emit with current date as name and result of X as the path if not running natively', async () => {
-      expect(true).toBeFalsy();
+    it('should cause result to emit with result of getPhoto as the path if not running natively', async () => {
+      const observerSpy = subscribeSpyTo(service.getPhotos());
+
+      jest.spyOn(platform, 'is').mockReturnValue(false);
+      await service.takePhoto();
+
+      const result = observerSpy.getLastValue();
+
+      expect(result?.[0].path).toEqual('test-path');
     });
 
     describe('should save result to file system if running natively', () => {
@@ -133,7 +140,7 @@ describe('PhotoService', () => {
         expect(Capacitor.convertFileSrc).toHaveBeenCalledWith(
           'uriFromWriteFile'
         );
-        expect(result?.[0].path).toEqual('resultFromConvertFileSrc');
+        expect(result?.[0].path).toEqual('result-from-convertFileSrc');
       });
     });
   });

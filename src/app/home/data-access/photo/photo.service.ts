@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Capacitor } from '@capacitor/core';
 import {
   Camera,
   ImageOptions,
@@ -36,20 +37,24 @@ export class PhotoService {
     const photo = await Camera.getPhoto(options);
 
     if (photo.path) {
+      const uniqueName = Date.now().toString();
+
       if (this.platform.is('capacitor')) {
         const photoOnFileSystem = await Filesystem.readFile({
           path: photo.path,
         });
 
-        const fileName = Date.now().toString() + '.jpeg';
+        const fileName = uniqueName + '.jpeg';
         const permanentFile = await Filesystem.writeFile({
           data: photoOnFileSystem.data,
           path: fileName,
           directory: Directory.Data,
         });
-      }
 
-      this.addPhoto(Date.now().toString(), photo.path);
+        this.addPhoto(fileName, Capacitor.convertFileSrc(permanentFile.uri));
+      } else {
+        this.addPhoto(uniqueName, photo.path);
+      }
     }
   }
 
