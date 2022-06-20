@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
-import { Filesystem } from '@capacitor/filesystem';
+import { Filesystem, Directory } from '@capacitor/filesystem';
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { Platform } from '@ionic/angular';
 import { PhotoService } from './photo.service';
@@ -21,7 +21,12 @@ jest.mock('@capacitor/filesystem', () => ({
   ...jest.requireActual('@capacitor/filesystem'),
   // eslint-disable-next-line @typescript-eslint/naming-convention
   Filesystem: {
-    readFile: jest.fn().mockReturnValue('returned-from-read-file'),
+    readFile: jest.fn().mockResolvedValue({
+      data: 'dataFromReadFile',
+    }),
+    writeFile: jest.fn().mockResolvedValue({
+      uri: 'uriFromWriteFIle',
+    }),
   },
 }));
 
@@ -94,7 +99,18 @@ describe('PhotoService', () => {
         expect(Filesystem.readFile).toHaveBeenCalledWith({ path: 'test-path' });
       });
 
-      // expect readFile to have been called with returned photo path
+      it('should call writeFile with the data from readFile, the current date as a file name, and the Data directory', async () => {
+        jest.useFakeTimers().setSystemTime(new Date('2022-01-01'));
+
+        await service.takePhoto();
+
+        expect(Filesystem.writeFile).toHaveBeenCalledWith({
+          data: 'dataFromReadFile',
+          path: Date.now().toString() + '.jpeg',
+          directory: Directory.Data,
+        });
+      });
+
       // expect result of readfile to have been supplied to writefile
       // expect result of writefile to have been supplied to Capacitor.convertFileSrc
       // expect emitted result to have a name matching the current date, and path matching result of convertFileSrc
