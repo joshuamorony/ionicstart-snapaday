@@ -13,8 +13,10 @@ describe('Home', () => {
 
   it('can take a photo', () => {
     getTakePhotoButton().click();
+    cy.wait(300);
     getShutterButton().click();
+    cy.wait(300);
     getAcceptPhotoButton().click();
-    getPhotoList().children().should('have.length');
+    getPhotoList().children().should('have.length.greaterThan', 0);
   });
 });
