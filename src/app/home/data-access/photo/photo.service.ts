@@ -34,27 +34,32 @@ export class PhotoService {
       source: CameraSource.Camera,
     };
 
-    const photo = await Camera.getPhoto(options);
+    try {
+      const photo = await Camera.getPhoto(options);
 
-    if (photo.path) {
-      const uniqueName = Date.now().toString();
+      if (photo.path) {
+        const uniqueName = Date.now().toString();
 
-      if (this.platform.is('capacitor')) {
-        const photoOnFileSystem = await Filesystem.readFile({
-          path: photo.path,
-        });
+        if (this.platform.is('capacitor')) {
+          const photoOnFileSystem = await Filesystem.readFile({
+            path: photo.path,
+          });
 
-        const fileName = uniqueName + '.jpeg';
-        const permanentFile = await Filesystem.writeFile({
-          data: photoOnFileSystem.data,
-          path: fileName,
-          directory: Directory.Data,
-        });
+          const fileName = uniqueName + '.jpeg';
+          const permanentFile = await Filesystem.writeFile({
+            data: photoOnFileSystem.data,
+            path: fileName,
+            directory: Directory.Data,
+          });
 
-        this.addPhoto(fileName, Capacitor.convertFileSrc(permanentFile.uri));
-      } else {
-        this.addPhoto(uniqueName, photo.path);
+          this.addPhoto(fileName, Capacitor.convertFileSrc(permanentFile.uri));
+        } else {
+          this.addPhoto(uniqueName, photo.path);
+        }
       }
+    } catch (err) {
+      console.log(err);
+      throw new Error('Could not save photo');
     }
   }
 
