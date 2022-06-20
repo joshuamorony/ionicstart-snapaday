@@ -12,15 +12,15 @@ import { map } from 'rxjs/operators';
     <ion-header>
       <ion-toolbar>
         <ion-title>Snapaday</ion-title>
+        <ion-buttons slot="end">
+          <ion-button
+            (click)="photoService.takePhoto()"
+            data-test="take-photo-button"
+          >
+            <ion-icon name="camera-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-buttons>
       </ion-toolbar>
-      <ion-buttons slot="end">
-        <ion-button
-          (click)="photoService.takePhoto()"
-          data-test="take-photo-button"
-        >
-          <ion-icon name="camera-outline" slot="icon-only"></ion-icon>
-        </ion-button>
-      </ion-buttons>
     </ion-header>
     <ion-content></ion-content>
   `,
