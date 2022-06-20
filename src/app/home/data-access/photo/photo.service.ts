@@ -1,5 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Camera, ImageOptions, CameraResultType } from '@capacitor/camera';
+import {
+  Camera,
+  ImageOptions,
+  CameraResultType,
+  CameraSource,
+} from '@capacitor/camera';
+import { Filesystem } from '@capacitor/filesystem';
 import { Platform } from '@ionic/angular';
 import { BehaviorSubject } from 'rxjs';
 import { Photo } from '../../../shared/interfaces/photo';
@@ -18,14 +24,24 @@ export class PhotoService {
 
   async takePhoto() {
     const options: ImageOptions = {
+      quality: 50,
+      width: 600,
+      allowEditing: false,
       resultType: this.platform.is('capacitor')
         ? CameraResultType.Uri
         : CameraResultType.DataUrl,
+      source: CameraSource.Camera,
     };
 
     const photo = await Camera.getPhoto(options);
 
     if (photo.path) {
+      if (this.platform.is('capacitor')) {
+        const photoOnFileSystem = await Filesystem.readFile({
+          path: photo.path,
+        });
+      }
+
       this.addPhoto(Date.now().toString(), photo.path);
     }
   }

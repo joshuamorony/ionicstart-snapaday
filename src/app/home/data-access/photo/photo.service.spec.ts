@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { Camera, CameraResultType } from '@capacitor/camera';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Filesystem } from '@capacitor/filesystem';
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { Platform } from '@ionic/angular';
 import { PhotoService } from './photo.service';
@@ -13,6 +14,14 @@ jest.mock('@capacitor/camera', () => ({
       path: 'test-path',
       base64String: 'test-base64String',
     }),
+  },
+}));
+
+jest.mock('@capacitor/filesystem', () => ({
+  ...jest.requireActual('@capacitor/filesystem'),
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  Filesystem: {
+    readFile: jest.fn().mockReturnValue('returned-from-read-file'),
   },
 }));
 
@@ -61,8 +70,34 @@ describe('PhotoService', () => {
       );
     });
 
-    it('should use the Camera as the source', () => {});
+    it('should use the Camera as the source', async () => {
+      await service.takePhoto();
 
-    it('should save result to file system if running natively', () => {});
+      expect(Camera.getPhoto).toHaveBeenCalledWith(
+        expect.objectContaining({ source: CameraSource.Camera })
+      );
+    });
+
+    it('should not attempt to save natively if not running natively', async () => {
+      jest.spyOn(platform, 'is').mockReturnValue(false);
+      await service.takePhoto();
+      expect(Filesystem.readFile).not.toHaveBeenCalled();
+    });
+
+    describe('should save result to file system if running natively', () => {
+      beforeEach(() => {
+        jest.spyOn(platform, 'is').mockReturnValue(true);
+      });
+
+      it('should pass photo path from camera to readFile', async () => {
+        await service.takePhoto();
+        expect(Filesystem.readFile).toHaveBeenCalledWith({ path: 'test-path' });
+      });
+
+      // expect readFile to have been called with returned photo path
+      // expect result of readfile to have been supplied to writefile
+      // expect result of writefile to have been supplied to Capacitor.convertFileSrc
+      // expect emitted result to have a name matching the current date, and path matching result of convertFileSrc
+    });
   });
 });
