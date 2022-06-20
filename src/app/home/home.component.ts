@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
+import { PhotoService } from './data-access/photo/photo.service';
 
 @Component({
   selector: 'app-home',
@@ -11,13 +11,21 @@ import { IonicModule } from '@ionic/angular';
       <ion-toolbar>
         <ion-title>Snapaday</ion-title>
       </ion-toolbar>
+      <ion-buttons>
+        <ion-button
+          (click)="photoService.takePhoto()"
+          data-test="take-photo-button"
+        >
+          <ion-icon name="camera-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ion-buttons>
     </ion-header>
     <ion-content></ion-content>
   `,
   styles: [],
 })
-export class HomePageComponent {
-  constructor() {}
+export class HomeComponent {
+  constructor(protected photoService: PhotoService) {}
 }
 
 @NgModule({
@@ -27,10 +35,10 @@ export class HomePageComponent {
     RouterModule.forChild([
       {
         path: '',
-        component: HomePageComponent,
+        component: HomeComponent,
       },
     ]),
   ],
-  declarations: [HomePageComponent],
+  declarations: [HomeComponent],
 })
-export class HomePageModule {}
+export class HomeModule {}
