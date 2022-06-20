@@ -13,7 +13,7 @@ import { map } from 'rxjs/operators';
       <ion-toolbar>
         <ion-title>Snapaday</ion-title>
       </ion-toolbar>
-      <ion-buttons>
+      <ion-buttons slot="end">
         <ion-button
           (click)="photoService.takePhoto()"
           data-test="take-photo-button"
@@ -27,16 +27,14 @@ import { map } from 'rxjs/operators';
   styles: [],
 })
 export class HomeComponent {
-  photos$ = this.photoService
-    .getPhotos()
-    .pipe(
-      map((photos) =>
-        photos.map((photo) => ({
-          ...photo,
-          path: this.sanitizer.bypassSecurityTrustResourceUrl(photo.path),
-        }))
-      )
-    );
+  photos$ = this.photoService.getPhotos().pipe(
+    map((photos) =>
+      photos.map((photo) => ({
+        ...photo,
+        path: this.sanitizer.bypassSecurityTrustResourceUrl(photo.path),
+      }))
+    )
+  );
 
   constructor(
     protected photoService: PhotoService,
