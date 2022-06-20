@@ -22,11 +22,7 @@ export class PhotoListComponent {
 }
 
 @NgModule({
-  imports: [
-    CommonModule,
-    IonicModule,
-    RouterModule.forChild([{ path: '', component: PhotoListComponent }]),
-  ],
+  imports: [CommonModule, IonicModule],
   declarations: [PhotoListComponent],
   exports: [PhotoListComponent],
 })

@@ -3,8 +3,8 @@ import { Component, NgModule } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
-import { PhotoService } from './data-access/photo/photo.service';
 import { map } from 'rxjs/operators';
+import { PhotoService } from './data-access/photo/photo.service';
 import { PhotoListComponentModule } from './ui/photo-list/photo-list.component';
 
 @Component({
