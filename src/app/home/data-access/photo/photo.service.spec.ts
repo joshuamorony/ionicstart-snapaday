@@ -1,13 +1,21 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { TestBed } from '@angular/core/testing';
+import { Capacitor } from '@capacitor/core';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { Platform } from '@ionic/angular';
 import { PhotoService } from './photo.service';
 
+jest.mock('@capacitor/core', () => ({
+  ...jest.requireActual('@capacitor/core'),
+  Capacitor: {
+    convertFileSrc: jest.fn().mockReturnValue('result-from-convertFileSrc'),
+  },
+}));
+
 jest.mock('@capacitor/camera', () => ({
   ...jest.requireActual('@capacitor/camera'),
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   Camera: {
     getPhoto: jest.fn().mockResolvedValue({
       dataUrl: 'test-dataUrl',
@@ -19,13 +27,12 @@ jest.mock('@capacitor/camera', () => ({
 
 jest.mock('@capacitor/filesystem', () => ({
   ...jest.requireActual('@capacitor/filesystem'),
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   Filesystem: {
     readFile: jest.fn().mockResolvedValue({
       data: 'dataFromReadFile',
     }),
     writeFile: jest.fn().mockResolvedValue({
-      uri: 'uriFromWriteFIle',
+      uri: 'uriFromWriteFile',
     }),
   },
 }));
@@ -89,6 +96,10 @@ describe('PhotoService', () => {
       expect(Filesystem.readFile).not.toHaveBeenCalled();
     });
 
+    it('should cause result to emit with current date as name and result of X as the path if not running natively', async () => {
+      expect(true).toBeFalsy();
+    });
+
     describe('should save result to file system if running natively', () => {
       beforeEach(() => {
         jest.spyOn(platform, 'is').mockReturnValue(true);
@@ -111,9 +122,19 @@ describe('PhotoService', () => {
         });
       });
 
-      // expect result of readfile to have been supplied to writefile
-      // expect result of writefile to have been supplied to Capacitor.convertFileSrc
-      // expect emitted result to have a name matching the current date, and path matching result of convertFileSrc
+      it('should cause result to emit with result of convertFileSrc as the path', async () => {
+        jest.useFakeTimers().setSystemTime(new Date('2022-01-01'));
+        const observerSpy = subscribeSpyTo(service.getPhotos());
+
+        await service.takePhoto();
+
+        const result = observerSpy.getLastValue();
+
+        expect(Capacitor.convertFileSrc).toHaveBeenCalledWith(
+          'uriFromWriteFile'
+        );
+        expect(result?.[0].path).toEqual('resultFromConvertFileSrc');
+      });
     });
   });
 });
