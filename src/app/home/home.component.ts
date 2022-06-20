@@ -25,6 +25,8 @@ import { PhotoService } from './data-access/photo/photo.service';
   styles: [],
 })
 export class HomeComponent {
+  photos$ = this.photoService.getPhotos();
+
   constructor(protected photoService: PhotoService) {}
 }
 
