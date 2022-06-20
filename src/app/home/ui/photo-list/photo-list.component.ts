@@ -9,14 +9,14 @@ import { Photo } from '../../../shared/interfaces/photo';
   template: `
     <ion-list>
       <ion-item *ngFor="let photo of photos" data-test="photo">
-        <img [src]="photo.path" />
+        <img [src]="photo.safeResourceUrl" />
       </ion-item>
     </ion-list>
   `,
   styles: [],
 })
 export class PhotoListComponent {
-  @Input() photos!: Photo[];
+  @Input() photos!: Photo[] | null;
 
   constructor() {}
 }
@@ -28,5 +28,6 @@ export class PhotoListComponent {
     RouterModule.forChild([{ path: '', component: PhotoListComponent }]),
   ],
   declarations: [PhotoListComponent],
+  exports: [PhotoListComponent],
 })
 export class PhotoListComponentModule {}

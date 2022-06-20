@@ -1,8 +1,17 @@
-import { ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { IonicModule } from '@ionic/angular';
+import { Photo } from '../../../shared/interfaces/photo';
 import { PhotoListComponent } from './photo-list.component';
+
+@Component({
+  selector: 'app-photo-list',
+  template: '',
+})
+export class MockPhotoListComponent {
+  @Input() photos!: Photo[];
+}
 
 describe('PhotoListComponent', () => {
   let component: PhotoListComponent;
@@ -43,7 +52,7 @@ describe('PhotoListComponent', () => {
       const items = fixture.debugElement.queryAll(
         By.css('[data-test="photo"]')
       );
-      expect(items.length).toEqual(component.photos.length);
+      expect(items.length).toEqual(component.photos?.length);
     });
   });
 });

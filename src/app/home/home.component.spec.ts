@@ -5,6 +5,7 @@ import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { PhotoService } from './data-access/photo/photo.service';
 import { HomeComponent } from './home.component';
 import { of } from 'rxjs';
+import { MockPhotoListComponent } from './ui/photo-list/photo-list.component.spec';
 
 describe('HomeComponent', () => {
   let component: HomeComponent;
@@ -20,7 +21,7 @@ describe('HomeComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [HomeComponent],
+      declarations: [HomeComponent, MockPhotoListComponent],
       imports: [IonicModule.forRoot()],
       providers: [
         {
@@ -66,7 +67,9 @@ describe('HomeComponent', () => {
   describe('photos$', () => {
     it('should modify photo paths to use bypassSecurityTrustResourceUrl', () => {
       const observerSpy = subscribeSpyTo(component.photos$);
-      expect(observerSpy.getLastValue()?.[0].path).toEqual('bypass-path');
+      expect(observerSpy.getLastValue()?.[0].safeResourceUrl).toEqual(
+        'bypass-path'
+      );
     });
   });
 });

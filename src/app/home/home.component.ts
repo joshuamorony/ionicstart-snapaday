@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { PhotoService } from './data-access/photo/photo.service';
 import { map } from 'rxjs/operators';
+import { PhotoListComponentModule } from './ui/photo-list/photo-list.component';
 
 @Component({
   selector: 'app-home',
@@ -22,7 +23,9 @@ import { map } from 'rxjs/operators';
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
-    <ion-content></ion-content>
+    <ion-content>
+      <app-photo-list [photos]="photos$ | async"></app-photo-list>
+    </ion-content>
   `,
   styles: [],
 })
@@ -31,7 +34,9 @@ export class HomeComponent {
     map((photos) =>
       photos.map((photo) => ({
         ...photo,
-        path: this.sanitizer.bypassSecurityTrustResourceUrl(photo.path),
+        safeResourceUrl: this.sanitizer.bypassSecurityTrustResourceUrl(
+          photo.path
+        ),
       }))
     )
   );
@@ -46,6 +51,7 @@ export class HomeComponent {
   imports: [
     CommonModule,
     IonicModule,
+    PhotoListComponentModule,
     RouterModule.forChild([
       {
         path: '',
