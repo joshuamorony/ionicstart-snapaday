@@ -6,7 +6,13 @@ import { Photo } from '../../../shared/interfaces/photo';
 
 @Component({
   selector: 'app-photo-list',
-  template: ``,
+  template: `
+    <ion-list>
+      <ion-item *ngFor="let photo of photos" data-test="photo">
+        <img src="" alt="" />
+      </ion-item>
+    </ion-list>
+  `,
   styles: [],
 })
 export class PhotoListComponent {
