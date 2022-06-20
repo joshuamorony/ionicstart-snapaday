@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, NgModule } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { PhotoService } from './data-access/photo/photo.service';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-home',
@@ -25,9 +27,21 @@ import { PhotoService } from './data-access/photo/photo.service';
   styles: [],
 })
 export class HomeComponent {
-  photos$ = this.photoService.getPhotos();
+  photos$ = this.photoService
+    .getPhotos()
+    .pipe(
+      map((photos) =>
+        photos.map((photo) => ({
+          ...photo,
+          path: this.sanitizer.bypassSecurityTrustResourceUrl(photo.path),
+        }))
+      )
+    );
 
-  constructor(protected photoService: PhotoService) {}
+  constructor(
+    protected photoService: PhotoService,
+    private sanitizer: DomSanitizer
+  ) {}
 }
 
 @NgModule({
