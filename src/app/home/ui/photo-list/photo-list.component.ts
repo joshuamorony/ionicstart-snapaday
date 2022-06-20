@@ -9,7 +9,7 @@ import { Photo } from '../../../shared/interfaces/photo';
   template: `
     <ion-list>
       <ion-item *ngFor="let photo of photos" data-test="photo">
-        <img src="" alt="" />
+        <img [src]="photo.path" />
       </ion-item>
     </ion-list>
   `,
