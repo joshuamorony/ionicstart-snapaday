@@ -96,6 +96,18 @@ describe('PhotoService', () => {
     });
   });
 
+  describe('getPhotos()', () => {
+    it('should set photo data in storage whenever it emits', async () => {
+      const observerSpy = subscribeSpyTo(service.getPhotos());
+      await service.init();
+      await service.takePhoto();
+      expect(setMock).toHaveBeenCalledWith(
+        'photos',
+        observerSpy.getLastValue()
+      );
+    });
+  });
+
   describe('takePhoto()', () => {
     it('should use URI result type if running natively', async () => {
       jest.spyOn(platform, 'is').mockReturnValue(true);
