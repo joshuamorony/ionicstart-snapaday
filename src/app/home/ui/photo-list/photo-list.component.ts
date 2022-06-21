@@ -1,6 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, NgModule } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  NgModule,
+} from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { Photo } from '../../../shared/interfaces/photo';
 
@@ -14,6 +18,7 @@ import { Photo } from '../../../shared/interfaces/photo';
     </ion-list>
   `,
   styles: [],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PhotoListComponent {
   @Input() photos!: Photo[] | null;

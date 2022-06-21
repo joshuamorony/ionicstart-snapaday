@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, NgModule } from '@angular/core';
+import { ChangeDetectionStrategy, Component, NgModule } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
@@ -28,6 +28,7 @@ import { PhotoListComponentModule } from './ui/photo-list/photo-list.component';
     </ion-content>
   `,
   styles: [],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent {
   photos$ = this.photoService.getPhotos().pipe(
