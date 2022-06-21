@@ -43,7 +43,7 @@ describe('PhotoService', () => {
   let platform: Platform;
   let storage: Storage;
 
-  const testLoadData: any = [];
+  const testLoadData: any = [{}];
 
   const setMock = jest.fn();
   const getMock = jest.fn().mockResolvedValue(testLoadData);

@@ -24,7 +24,10 @@ export class PhotoService {
   async init() {
     this.storage = await this.ionicStorage.create();
 
-    const settings = await this.storage?.get('photos');
+    const photos = await this.storage?.get('photos');
+    if (photos) {
+      this.photos$.next(photos);
+    }
   }
 
   getPhotos() {
