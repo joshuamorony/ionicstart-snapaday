@@ -31,6 +31,7 @@
     "@hirez_io/observer-spy": "^2.2.0",
     "@ionic/angular": "^6.1.9",
     "@ionic/pwa-elements": "^3.1.1",
+    "@ionic/storage-angular": "^3.0.6",
     "rxjs": "~6.6.0",
     "tslib": "^2.2.0",
     "zone.js": "~0.11.4"

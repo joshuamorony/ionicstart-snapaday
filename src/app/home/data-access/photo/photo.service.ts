@@ -10,14 +10,22 @@ import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Platform } from '@ionic/angular';
 import { BehaviorSubject } from 'rxjs';
 import { Photo } from '../../../shared/interfaces/photo';
+import { Storage } from '@ionic/storage-angular';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PhotoService {
   private photos$ = new BehaviorSubject<Photo[]>([]);
+  private storage: Storage | null = null;
 
-  constructor(private platform: Platform) {}
+  constructor(private platform: Platform, private ionicStorage: Storage) {}
+
+  async init() {
+    this.storage = await this.ionicStorage.create();
+
+    const settings = await this.storage?.get('photos');
+  }
 
   getPhotos() {
     return this.photos$.asObservable();

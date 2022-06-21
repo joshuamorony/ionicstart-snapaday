@@ -6,6 +6,7 @@ import { Filesystem, Directory } from '@capacitor/filesystem';
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { Platform } from '@ionic/angular';
 import { PhotoService } from './photo.service';
+import { Storage } from '@ionic/storage-angular';
 
 jest.mock('@capacitor/core', () => ({
   ...jest.requireActual('@capacitor/core'),
@@ -40,19 +41,59 @@ jest.mock('@capacitor/filesystem', () => ({
 describe('PhotoService', () => {
   let service: PhotoService;
   let platform: Platform;
+  let storage: Storage;
+
+  const testLoadData: any = [];
+
+  const setMock = jest.fn();
+  const getMock = jest.fn().mockResolvedValue(testLoadData);
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [Platform],
+      providers: [
+        Platform,
+        {
+          provide: Storage,
+          useValue: {
+            create: jest.fn().mockResolvedValue({
+              set: setMock,
+              get: getMock,
+            }),
+          },
+        },
+      ],
     });
     service = TestBed.inject(PhotoService);
     platform = TestBed.inject(Platform);
+    storage = TestBed.inject(Storage);
 
     jest.clearAllMocks();
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
+  });
+
+  describe('init()', () => {
+    it('should return a promise', () => {
+      expect(service.init()).toBeInstanceOf(Promise);
+    });
+
+    it('should emit the photos from storage on getPhotos if defined', async () => {
+      const observerSpy = subscribeSpyTo(service.getPhotos());
+      await service.init();
+      expect(observerSpy.getLastValue()).toEqual(testLoadData);
+    });
+
+    it('should not emit the photos from storage on getPhotos if not defined', async () => {
+      jest.spyOn(storage, 'create').mockResolvedValue({
+        get: jest.fn().mockResolvedValue(undefined),
+      } as any);
+
+      const observerSpy = subscribeSpyTo(service.getPhotos());
+      await service.init();
+      expect(observerSpy.getLastValue()).toEqual([]);
+    });
   });
 
   describe('takePhoto()', () => {
