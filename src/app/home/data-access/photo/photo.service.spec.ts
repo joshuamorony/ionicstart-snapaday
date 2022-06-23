@@ -7,7 +7,6 @@ import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { Platform } from '@ionic/angular';
 import { PhotoService } from './photo.service';
 import { Storage } from '@ionic/storage-angular';
-import { of } from 'rxjs';
 
 jest.mock('@capacitor/core', () => ({
   ...jest.requireActual('@capacitor/core'),
@@ -44,7 +43,15 @@ describe('PhotoService', () => {
   let platform: Platform;
   let storage: Storage;
 
-  const testLoadData: any = [{}];
+  const testPhotoOne = {
+    name: 'photo1',
+  };
+
+  const testPhotoTwo = {
+    name: 'photo2',
+  };
+
+  const testLoadData: any = [testPhotoOne, testPhotoTwo];
 
   const setMock = jest.fn();
   const getMock = jest.fn().mockResolvedValue(testLoadData);
@@ -144,6 +151,21 @@ describe('PhotoService', () => {
         observerSpy.getLastValue()
       );
     });
+  });
+
+  describe('deletePhoto()', () => {
+    it('should cause getPhotos to emit without the photo that was deleted', async () => {
+      const observerSpy = subscribeSpyTo(service.getPhotos());
+      await service.init();
+      service.deletePhoto(testPhotoOne.name);
+      expect(
+        observerSpy
+          .getLastValue()
+          ?.find((photo) => photo.name === testPhotoOne.name)
+      ).toBeUndefined();
+    });
+
+    it('should delete the file path with Filesystem', () => {});
   });
 
   describe('takePhoto()', () => {

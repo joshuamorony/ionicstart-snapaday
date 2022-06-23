@@ -83,7 +83,13 @@ export class PhotoService {
     }
   }
 
-  deletePhoto(name: string) {}
+  deletePhoto(name: string) {
+    const newPhotos = this.photos$.value.filter(
+      (photos) => photos.name !== name
+    );
+
+    this.photos$.next(newPhotos);
+  }
 
   private addPhoto(fileName: string, filePath: string) {
     const newPhotos = [
