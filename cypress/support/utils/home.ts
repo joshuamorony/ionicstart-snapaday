@@ -10,6 +10,8 @@ const getCameraModal = () =>
 
 export const getShutterButton = () => getCameraModal().find('.shutter-button');
 export const getAcceptPhotoButton = () => getCameraModal().find('.accept-use');
+export const getDeletePhotoButton = () =>
+  cy.get('[data-test="delete-photo-button"]');
 
 export const takePhoto = () => {
   getTakePhotoButton().click();

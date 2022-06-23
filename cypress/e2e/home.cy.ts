@@ -1,4 +1,5 @@
 import {
+  getDeletePhotoButton,
   getPhotoList,
   getTakePhotoButton,
   navigateToHomePage,
@@ -19,5 +20,11 @@ describe('Home', () => {
     takePhoto();
     getPhotoList().children().should('have.length.greaterThan', 0);
     getTakePhotoButton().should('have.attr', 'disabled');
+  });
+
+  it('should be able to delete a photo', () => {
+    takePhoto();
+    getDeletePhotoButton().first().click({ force: true });
+    getPhotoList().children().should('not.exist');
   });
 });
