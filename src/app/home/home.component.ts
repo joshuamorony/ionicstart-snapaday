@@ -15,6 +15,7 @@ import { PhotoListComponentModule } from './ui/photo-list/photo-list.component';
         <ion-title>Snapaday</ion-title>
         <ion-buttons slot="end">
           <ion-button
+            [disabled]="(photoService.canTakePhoto() | async) === false"
             (click)="photoService.takePhoto()"
             data-test="take-photo-button"
           >

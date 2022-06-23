@@ -4,12 +4,13 @@ import { IonicModule } from '@ionic/angular';
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { PhotoService } from './data-access/photo/photo.service';
 import { HomeComponent } from './home.component';
-import { of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { MockPhotoListComponent } from './ui/photo-list/photo-list.component.spec';
 
 describe('HomeComponent', () => {
   let component: HomeComponent;
   let fixture: ComponentFixture<HomeComponent>;
+  let mockCanTakePhoto: BehaviorSubject<boolean>;
 
   const testPhoto = {
     name: 'test',
@@ -20,6 +21,8 @@ describe('HomeComponent', () => {
   const testPhotos = [testPhoto, testPhoto, testPhoto];
 
   beforeEach(waitForAsync(() => {
+    mockCanTakePhoto = new BehaviorSubject(true);
+
     TestBed.configureTestingModule({
       declarations: [HomeComponent, MockPhotoListComponent],
       imports: [IonicModule.forRoot()],
@@ -29,6 +32,7 @@ describe('HomeComponent', () => {
           useValue: {
             takePhoto: jest.fn(),
             getPhotos: jest.fn().mockReturnValue(of(testPhotos)),
+            canTakePhoto: jest.fn().mockReturnValue(mockCanTakePhoto),
           },
         },
         {
@@ -50,6 +54,15 @@ describe('HomeComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should disable the take photo button if a photo has already been taken', () => {
+    mockCanTakePhoto.next(false);
+    fixture.detectChanges();
+    const takePhotoButton = fixture.debugElement.query(
+      By.css('[data-test="take-photo-button"]')
+    );
+    expect(takePhotoButton.componentInstance.disabled).toBeTruthy();
   });
 
   it('should call the takePhoto method in the photo service when take photo button clicked', () => {
