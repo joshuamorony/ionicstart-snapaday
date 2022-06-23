@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { IonicModule } from '@ionic/angular';
 import { Photo } from '../../../shared/interfaces/photo';
 import { PhotoListComponent } from './photo-list.component';
@@ -53,6 +54,17 @@ describe('PhotoListComponent', () => {
         By.css('[data-test="photo"]')
       );
       expect(items.length).toEqual(component.photos?.length);
+    });
+  });
+
+  describe('@Output() delete', () => {
+    it('should emit name of photo to delete when delete button is clicked', () => {
+      const observerSpy = subscribeSpyTo(component.delete);
+      const deleteButton = fixture.debugElement.query(
+        By.css('[data-test="delete-photo-button"]')
+      );
+      deleteButton.nativeElement.click();
+      expect(observerSpy.getLastValue()).toEqual(component.photos?.[0].name);
     });
   });
 });

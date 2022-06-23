@@ -2,8 +2,10 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  EventEmitter,
   Input,
   NgModule,
+  Output,
 } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { Photo } from '../../../shared/interfaces/photo';
@@ -22,6 +24,7 @@ import { Photo } from '../../../shared/interfaces/photo';
 })
 export class PhotoListComponent {
   @Input() photos!: Photo[] | null;
+  @Output() delete = new EventEmitter<string>();
 
   constructor() {}
 }
