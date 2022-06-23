@@ -14,9 +14,20 @@ import { Photo } from '../../../shared/interfaces/photo';
   selector: 'app-photo-list',
   template: `
     <ion-list data-test="photo-list">
-      <ion-item *ngFor="let photo of photos" data-test="photo">
-        <img [src]="photo.safeResourceUrl" />
-      </ion-item>
+      <ion-item-sliding *ngFor="let photo of photos; trackBy: trackByFn">
+        <ion-item data-test="photo">
+          <img [src]="photo.safeResourceUrl" />
+        </ion-item>
+        <ion-item-options side="end">
+          <ion-item-option
+            data-test="delete-photo-button"
+            (click)="delete.emit(photo.name)"
+            color="danger"
+          >
+            <ion-icon name="trash" slot="icon-only"></ion-icon>
+          </ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
     </ion-list>
   `,
   styles: [],
@@ -27,6 +38,10 @@ export class PhotoListComponent {
   @Output() delete = new EventEmitter<string>();
 
   constructor() {}
+
+  trackByFn(index: number, photo: Photo) {
+    return photo.name;
+  }
 }
 
 @NgModule({
