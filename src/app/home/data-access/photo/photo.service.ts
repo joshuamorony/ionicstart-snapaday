@@ -11,7 +11,7 @@ import { Platform } from '@ionic/angular';
 import { BehaviorSubject } from 'rxjs';
 import { Photo } from '../../../shared/interfaces/photo';
 import { Storage } from '@ionic/storage-angular';
-import { tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -34,6 +34,20 @@ export class PhotoService {
   getPhotos() {
     return this.photos$.pipe(
       tap((photos) => this.storage?.set('photos', photos))
+    );
+  }
+
+  canTakePhoto() {
+    return this.photos$.pipe(
+      map((photos) =>
+        photos.find(
+          (photo) =>
+            new Date().setHours(0, 0, 0, 0) ===
+            new Date(photo.dateTaken).setHours(0, 0, 0, 0)
+        )
+          ? false
+          : true
+      )
     );
   }
 

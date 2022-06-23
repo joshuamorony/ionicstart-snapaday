@@ -74,6 +74,38 @@ describe('PhotoService', () => {
     expect(service).toBeTruthy();
   });
 
+  describe('canTakePhoto()', () => {
+    it('should emit true if no photos are present', async () => {
+      jest.spyOn(storage, 'create').mockResolvedValue({
+        get: jest.fn().mockResolvedValue(undefined),
+      } as any);
+
+      const observerSpy = subscribeSpyTo(service.canTakePhoto());
+      await service.init();
+      expect(observerSpy.getLastValue()).toBe(true);
+    });
+
+    it('should emit true if there are no photos that have been taken today', async () => {
+      jest.spyOn(storage, 'create').mockResolvedValue({
+        get: jest.fn().mockResolvedValue([{ dateTaken: new Date(2022, 5, 5) }]),
+      } as any);
+
+      const observerSpy = subscribeSpyTo(service.canTakePhoto());
+      await service.init();
+      expect(observerSpy.getLastValue()).toBe(true);
+    });
+
+    it('should emit false if a photo exists that has been taken today', async () => {
+      jest.spyOn(storage, 'create').mockResolvedValue({
+        get: jest.fn().mockResolvedValue([{ dateTaken: new Date() }]),
+      } as any);
+
+      const observerSpy = subscribeSpyTo(service.canTakePhoto());
+      await service.init();
+      expect(observerSpy.getLastValue()).toBe(false);
+    });
+  });
+
   describe('init()', () => {
     it('should return a promise', () => {
       expect(service.init()).toBeInstanceOf(Promise);
