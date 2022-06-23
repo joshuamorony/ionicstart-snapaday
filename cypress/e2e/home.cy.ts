@@ -1,4 +1,5 @@
 import {
+  getDaysAgoLabel,
   getDeletePhotoButton,
   getPhotoList,
   getTakePhotoButton,
@@ -26,5 +27,10 @@ describe('Home', () => {
     takePhoto();
     getDeletePhotoButton().first().click({ force: true });
     getPhotoList().children().should('not.exist');
+  });
+
+  it('should display days ago label on photo', () => {
+    takePhoto();
+    getDaysAgoLabel().should('contain.text', 'today');
   });
 });
