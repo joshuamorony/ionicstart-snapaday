@@ -103,7 +103,7 @@ export class PhotoService {
       {
         name: fileName,
         path: filePath,
-        dateTaken: new Date(),
+        dateTaken: new Date().toISOString(),
       },
       ...this.photos$.value,
     ];

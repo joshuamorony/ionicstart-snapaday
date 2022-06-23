@@ -43,7 +43,7 @@ describe('PhotoListComponent', () => {
     const testPhoto = {
       name: 'test',
       path: 'path',
-      dateTaken: new Date(),
+      dateTaken: new Date().toString(),
     };
 
     component.photos = [testPhoto, testPhoto, testPhoto];
