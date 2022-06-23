@@ -35,6 +35,7 @@ jest.mock('@capacitor/filesystem', () => ({
     writeFile: jest.fn().mockResolvedValue({
       uri: 'uriFromWriteFile',
     }),
+    deleteFile: jest.fn().mockResolvedValue(true),
   },
 }));
 
@@ -165,7 +166,16 @@ describe('PhotoService', () => {
       ).toBeUndefined();
     });
 
-    it('should delete the file path with Filesystem', () => {});
+    it('should delete the file path with Filesystem if running natively', async () => {
+      jest.spyOn(platform, 'is').mockReturnValue(true);
+      await service.init();
+      service.deletePhoto(testPhotoOne.name);
+
+      expect(Filesystem.deleteFile).toHaveBeenCalledWith({
+        path: testPhotoOne.name,
+        directory: Directory.Data,
+      });
+    });
   });
 
   describe('takePhoto()', () => {
