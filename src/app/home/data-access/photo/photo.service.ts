@@ -38,20 +38,14 @@ export class PhotoService {
   }
 
   canTakePhoto() {
-    return this.photos$.pipe(
-      map((photos) =>
-        photos.find(
-          (photo) =>
-            new Date().setHours(0, 0, 0, 0) ===
-            new Date(photo.dateTaken).setHours(0, 0, 0, 0)
-        )
-          ? false
-          : true
-      )
-    );
+    return this.photos$.pipe(map((photos) => !this.hasTakenPhotoToday(photos)));
   }
 
   async takePhoto() {
+    if (this.hasTakenPhotoToday(this.photos$.value)) {
+      return;
+    }
+
     const options: ImageOptions = {
       quality: 50,
       width: 600,
@@ -100,5 +94,15 @@ export class PhotoService {
     ];
 
     this.photos$.next(newPhotos);
+  }
+
+  private hasTakenPhotoToday(photos: Photo[]) {
+    return photos.find(
+      (photo) =>
+        new Date().setHours(0, 0, 0, 0) ===
+        new Date(photo.dateTaken).setHours(0, 0, 0, 0)
+    )
+      ? true
+      : false;
   }
 }

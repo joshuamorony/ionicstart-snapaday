@@ -7,6 +7,7 @@ import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { Platform } from '@ionic/angular';
 import { PhotoService } from './photo.service';
 import { Storage } from '@ionic/storage-angular';
+import { of } from 'rxjs';
 
 jest.mock('@capacitor/core', () => ({
   ...jest.requireActual('@capacitor/core'),
@@ -51,7 +52,12 @@ describe('PhotoService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        Platform,
+        {
+          provide: Platform,
+          useValue: {
+            is: jest.fn(),
+          },
+        },
         {
           provide: Storage,
           useValue: {
@@ -141,6 +147,15 @@ describe('PhotoService', () => {
   });
 
   describe('takePhoto()', () => {
+    it('should not take photo if photo has already been taken', async () => {
+      jest.spyOn(storage, 'create').mockResolvedValue({
+        get: jest.fn().mockResolvedValue([{ dateTaken: new Date() }]),
+      } as any);
+      await service.init();
+      await service.takePhoto();
+      expect(Camera.getPhoto).not.toHaveBeenCalled();
+    });
+
     it('should use URI result type if running natively', async () => {
       jest.spyOn(platform, 'is').mockReturnValue(true);
 
