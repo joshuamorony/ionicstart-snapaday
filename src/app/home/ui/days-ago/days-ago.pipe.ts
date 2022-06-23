@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { NgModule, Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
   name: 'daysAgo',
@@ -21,3 +21,9 @@ export class DaysAgoPipe implements PipeTransform {
     }
   }
 }
+
+@NgModule({
+  declarations: [DaysAgoPipe],
+  exports: [DaysAgoPipe],
+})
+export class DaysAgoPipeModule {}
