@@ -33,6 +33,7 @@ describe('HomeComponent', () => {
             takePhoto: jest.fn(),
             getPhotos: jest.fn().mockReturnValue(of(testPhotos)),
             canTakePhoto: jest.fn().mockReturnValue(mockCanTakePhoto),
+            deletePhoto: jest.fn(),
           },
         },
         {
@@ -75,6 +76,15 @@ describe('HomeComponent', () => {
     takePhotoButton.nativeElement.click();
 
     expect(photoService.takePhoto).toHaveBeenCalled();
+  });
+
+  it('should call the deletePhoto method in the photo service when the delete event emits', () => {
+    const photoService = fixture.debugElement.injector.get(PhotoService);
+    const photoList = fixture.debugElement.query(By.css('app-photo-list'));
+
+    photoList.triggerEventHandler('delete', 'testName');
+
+    expect(photoService.deletePhoto).toHaveBeenCalledWith('testName');
   });
 
   describe('photos$', () => {

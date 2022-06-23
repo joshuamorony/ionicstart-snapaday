@@ -83,6 +83,8 @@ export class PhotoService {
     }
   }
 
+  deletePhoto(name: string) {}
+
   private addPhoto(fileName: string, filePath: string) {
     const newPhotos = [
       {
