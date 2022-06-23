@@ -1,9 +1,8 @@
 import {
-  getAcceptPhotoButton,
   getPhotoList,
-  getShutterButton,
   getTakePhotoButton,
   navigateToHomePage,
+  takePhoto,
 } from 'cypress/support/utils';
 
 describe('Home', () => {
@@ -12,11 +11,13 @@ describe('Home', () => {
   });
 
   it('can take a photo', () => {
-    getTakePhotoButton().click();
-    cy.wait(300);
-    getShutterButton().click();
-    cy.wait(300);
-    getAcceptPhotoButton().click();
+    takePhoto();
     getPhotoList().children().should('have.length.greaterThan', 0);
+  });
+
+  it('can not take two photos', () => {
+    takePhoto();
+    getPhotoList().children().should('have.length.greaterThan', 0);
+    getTakePhotoButton().should('have.attr', 'disabled');
   });
 });

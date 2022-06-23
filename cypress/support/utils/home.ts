@@ -10,3 +10,11 @@ const getCameraModal = () =>
 
 export const getShutterButton = () => getCameraModal().find('.shutter-button');
 export const getAcceptPhotoButton = () => getCameraModal().find('.accept-use');
+
+export const takePhoto = () => {
+  getTakePhotoButton().click();
+  cy.wait(300);
+  getShutterButton().click();
+  cy.wait(300);
+  getAcceptPhotoButton().click();
+};
