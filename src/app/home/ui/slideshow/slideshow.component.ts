@@ -31,6 +31,10 @@ import { Photo } from '../../../shared/interfaces/photo';
   `,
   styles: [
     `
+      :host {
+        height: 100%;
+      }
+
       .image-container {
         position: absolute;
         top: 0;
