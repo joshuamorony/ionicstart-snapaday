@@ -10,6 +10,7 @@ import { By } from '@angular/platform-browser';
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { IonicModule } from '@ionic/angular';
 import { Photo } from '../../../shared/interfaces/photo';
+import { MockDaysAgoPipe } from '../days-ago/days-ago.pipe.spec';
 import { PhotoListComponent } from './photo-list.component';
 
 @Component({
@@ -27,7 +28,7 @@ describe('PhotoListComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [PhotoListComponent],
+      declarations: [PhotoListComponent, MockDaysAgoPipe],
       imports: [IonicModule.forRoot()],
     })
       .overrideComponent(PhotoListComponent, {

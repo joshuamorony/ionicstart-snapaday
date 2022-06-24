@@ -1,4 +1,12 @@
+import { Pipe, PipeTransform } from '@angular/core';
 import { DaysAgoPipe } from './days-ago.pipe';
+
+@Pipe({
+  name: 'daysAgo',
+})
+export class MockDaysAgoPipe implements PipeTransform {
+  transform(value: string) {}
+}
 
 describe('DaysAgoPipe', () => {
   let pipe: DaysAgoPipe;
