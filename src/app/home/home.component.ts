@@ -11,7 +11,7 @@ import { PhotoListComponentModule } from './ui/photo-list/photo-list.component';
   selector: 'app-home',
   template: `
     <ion-header>
-      <ion-toolbar>
+      <ion-toolbar color="danger">
         <ion-title>Snapaday</ion-title>
         <ion-buttons slot="end">
           <ion-button
@@ -31,7 +31,14 @@ import { PhotoListComponentModule } from './ui/photo-list/photo-list.component';
       ></app-photo-list>
     </ion-content>
   `,
-  styles: [],
+  styles: [
+    `
+      ion-title img {
+        max-height: 30px;
+        margin-top: 4px;
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent {

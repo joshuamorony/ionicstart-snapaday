@@ -14,7 +14,7 @@ import { DaysAgoPipeModule } from '../days-ago/days-ago.pipe';
 @Component({
   selector: 'app-photo-list',
   template: `
-    <ion-list data-test="photo-list">
+    <ion-list data-test="photo-list" lines="none">
       <ion-item-sliding *ngFor="let photo of photos; trackBy: trackByFn">
         <ion-item data-test="photo">
           <img [src]="photo.safeResourceUrl" />
@@ -34,7 +34,30 @@ import { DaysAgoPipeModule } from '../days-ago/days-ago.pipe';
       </ion-item-sliding>
     </ion-list>
   `,
-  styles: [],
+  styles: [
+    `
+      ion-list {
+        padding: 0;
+      }
+
+      ion-item {
+        margin-bottom: 2px;
+        --inner-padding-end: 0px;
+        --padding-start: 0px;
+
+        img {
+          width: 100%;
+          height: auto;
+        }
+      }
+
+      ion-badge {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PhotoListComponent {

@@ -7,8 +7,8 @@ import { Photo } from '../../../shared/interfaces/photo';
   selector: 'app-slideshow',
   template: `
     <ion-header>
-      <ion-toolbar>
-        <ion-title></ion-title>
+      <ion-toolbar color="danger">
+        <ion-title>Play</ion-title>
         <ion-buttons>
           <ion-button data-test="play-button" (click)="playSlideshow()">
             <ion-icon name="play" slot="icon-only"></ion-icon>
@@ -17,6 +17,7 @@ import { Photo } from '../../../shared/interfaces/photo';
       </ion-toolbar>
     </ion-header>
     <ion-content>
+      <div class="image-container"></div>
       <img
         *ngIf="photos"
         data-test="slideshow-image"
@@ -28,7 +29,26 @@ import { Photo } from '../../../shared/interfaces/photo';
       />
     </ion-content>
   `,
-  styles: [``],
+  styles: [
+    `
+      .image-container {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        img {
+          width: 100%;
+          height: auto;
+          vertical-align: middle;
+        }
+      }
+    `,
+  ],
 })
 export class SlideshowComponent implements OnDestroy {
   @Input() photos!: Photo[];
