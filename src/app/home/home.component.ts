@@ -3,9 +3,11 @@ import { ChangeDetectionStrategy, Component, NgModule } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
+import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PhotoService } from './data-access/photo/photo.service';
 import { PhotoListComponentModule } from './ui/photo-list/photo-list.component';
+import { SlideshowComponentModule } from './ui/slideshow/slideshow.component';
 
 @Component({
   selector: 'app-home',
@@ -21,6 +23,12 @@ import { PhotoListComponentModule } from './ui/photo-list/photo-list.component';
           >
             <ion-icon name="camera-outline" slot="icon-only"></ion-icon>
           </ion-button>
+          <ion-button
+            data-test="slideshow-button"
+            (click)="modalIsOpen$.next(true)"
+          >
+            <ion-icon name="play" slot="icon-only"></ion-icon>
+          </ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
@@ -30,6 +38,14 @@ import { PhotoListComponentModule } from './ui/photo-list/photo-list.component';
         (delete)="photoService.deletePhoto($event)"
       ></app-photo-list>
     </ion-content>
+    <ion-modal
+      [isOpen]="modalIsOpen$"
+      (ionModalDidDismiss)="modalIsOpen$.next(false)"
+    >
+      <ng-template>
+        <app-slideshow></app-slideshow>
+      </ng-template>
+    </ion-modal>
   `,
   styles: [
     `
@@ -53,6 +69,8 @@ export class HomeComponent {
     )
   );
 
+  modalIsOpen$ = new BehaviorSubject(false);
+
   constructor(
     protected photoService: PhotoService,
     private sanitizer: DomSanitizer
@@ -64,6 +82,7 @@ export class HomeComponent {
     CommonModule,
     IonicModule,
     PhotoListComponentModule,
+    SlideshowComponentModule,
     RouterModule.forChild([
       {
         path: '',
