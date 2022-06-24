@@ -26,10 +26,12 @@ describe('SlideshowComponent', () => {
     component = fixture.componentInstance;
 
     testPhotos = [
-      { safeResourceUrl: 'path1' },
-      { safeResourceUrl: 'path2' },
-      { safeResourceUrl: 'path3' },
+      { safeResourceUrl: 'http://localhost/path1' },
+      { safeResourceUrl: 'http://localhost/path2' },
+      { safeResourceUrl: 'http://localhost/path3' },
     ] as any;
+
+    component.photos = testPhotos;
 
     fixture.detectChanges();
   }));
@@ -54,23 +56,34 @@ describe('SlideshowComponent', () => {
         By.css('[data-test="slideshow-image"]')
       );
 
-      jest.spyOn(img.nativeElement, 'src', 'set');
-
       const playButton = fixture.debugElement.query(
         By.css('[data-test="play-button"]')
       );
 
       playButton.nativeElement.click();
 
-      expect(img.nativeElement.src.set).toHaveBeenCalledWith(
+      tick(500);
+      fixture.detectChanges();
+
+      expect(img.nativeElement.src).toEqual(
+        testPhotos[testPhotos.length - 1].safeResourceUrl
+      );
+
+      tick(500);
+      fixture.detectChanges();
+
+      expect(img.nativeElement.src).toEqual(
         testPhotos[testPhotos.length - 2].safeResourceUrl
       );
 
       tick(500);
+      fixture.detectChanges();
 
-      expect(img.nativeElement.src.set).toHaveBeenCalledWith(
+      expect(img.nativeElement.src).toEqual(
         testPhotos[testPhotos.length - 3].safeResourceUrl
       );
+
+      tick(500);
     }));
   });
 });
