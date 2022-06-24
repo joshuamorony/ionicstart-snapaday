@@ -45,7 +45,7 @@ import { SlideshowComponentModule } from './ui/slideshow/slideshow.component';
       (ionModalDidDismiss)="modalIsOpen$.next(false)"
     >
       <ng-template>
-        <app-slideshow></app-slideshow>
+        <app-slideshow [photos]="photos$ | async"></app-slideshow>
       </ng-template>
     </ion-modal>
   `,

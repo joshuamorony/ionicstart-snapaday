@@ -51,16 +51,12 @@ describe('SlideshowComponent', () => {
       );
     });
 
-    it('when the play button is clicked, it should show every photo in sequence', fakeAsync(() => {
+    it('when it is launched, it should show every photo in sequence', fakeAsync(() => {
       const img = fixture.debugElement.query(
         By.css('[data-test="slideshow-image"]')
       );
 
-      const playButton = fixture.debugElement.query(
-        By.css('[data-test="play-button"]')
-      );
-
-      playButton.nativeElement.click();
+      component.ngOnInit();
 
       tick(500);
       fixture.detectChanges();

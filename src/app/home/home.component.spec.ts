@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { By, DomSanitizer } from '@angular/platform-browser';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, IonRouterOutlet } from '@ionic/angular';
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { PhotoService } from './data-access/photo/photo.service';
 import { HomeComponent } from './home.component';
@@ -27,6 +27,10 @@ describe('HomeComponent', () => {
       declarations: [HomeComponent, MockPhotoListComponent],
       imports: [IonicModule.forRoot()],
       providers: [
+        {
+          provide: IonRouterOutlet,
+          useValue: {},
+        },
         {
           provide: PhotoService,
           useValue: {

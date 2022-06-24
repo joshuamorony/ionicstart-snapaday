@@ -3,6 +3,8 @@ import {
   getDeletePhotoButton,
   getPhotoList,
   getSlideshowButton,
+  getSlideshowCloseButton,
+  getSlideshowModal,
   getSlideshowPlayButton,
   getTakePhotoButton,
   navigateToHomePage,
@@ -36,9 +38,14 @@ describe('Home', () => {
     getDaysAgoLabel().should('contain.text', 'today');
   });
 
-  it('should be able to launch and play slideshow', () => {
-    takePhoto();
+  it('should be able to launch slideshow', () => {
     getSlideshowButton().click();
-    getSlideshowPlayButton().click();
+    getSlideshowModal().should('be.visible');
+  });
+
+  it('should be able to close slideshow', () => {
+    getSlideshowButton().click();
+    getSlideshowCloseButton().click();
+    getSlideshowModal().should('not.exist');
   });
 });

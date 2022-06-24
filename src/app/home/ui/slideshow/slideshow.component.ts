@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, NgModule, OnDestroy } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { Component, Input, NgModule, OnDestroy, OnInit } from '@angular/core';
+import { IonicModule, ModalController } from '@ionic/angular';
 import { Photo } from '../../../shared/interfaces/photo';
 
 @Component({
@@ -9,24 +9,28 @@ import { Photo } from '../../../shared/interfaces/photo';
     <ion-header>
       <ion-toolbar color="danger">
         <ion-title>Play</ion-title>
-        <ion-buttons>
-          <ion-button data-test="play-button" (click)="playSlideshow()">
-            <ion-icon name="play" slot="icon-only"></ion-icon>
+        <ion-buttons slot="end">
+          <ion-button
+            data-test="slideshow-close-button"
+            (click)="modalCtrl.dismiss()"
+          >
+            <ion-icon name="close" slot="icon-only"></ion-icon>
           </ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
     <ion-content>
-      <div class="image-container"></div>
-      <img
-        *ngIf="photos"
-        data-test="slideshow-image"
-        [src]="
-          currentPhoto
-            ? currentPhoto.safeResourceUrl
-            : photos[photos.length - 1].safeResourceUrl
-        "
-      />
+      <div class="image-container">
+        <img
+          *ngIf="photos"
+          data-test="slideshow-image"
+          [src]="
+            currentPhoto
+              ? currentPhoto.safeResourceUrl
+              : photos[photos.length - 1].safeResourceUrl
+          "
+        />
+      </div>
     </ion-content>
   `,
   styles: [
@@ -54,25 +58,37 @@ import { Photo } from '../../../shared/interfaces/photo';
     `,
   ],
 })
-export class SlideshowComponent implements OnDestroy {
-  @Input() photos!: Photo[];
+export class SlideshowComponent implements OnInit, OnDestroy {
+  @Input() photos!: Photo[] | null;
   currentPhoto: Photo | null = null;
 
   private slideshowInterval: ReturnType<typeof setInterval> | null = null;
+
+  constructor(protected modalCtrl: ModalController) {}
+
+  ngOnInit() {
+    this.playSlideshow();
+  }
 
   ngOnDestroy() {
     this.clearInterval();
   }
 
   playSlideshow() {
+    if (!this.photos) {
+      return;
+    }
+
     let currentPhotoIndex = this.photos.length - 1;
 
     // Clear interval if there is one set
     this.clearInterval();
 
+    const photos = this.photos;
+
     this.slideshowInterval = setInterval(() => {
       if (currentPhotoIndex >= 0) {
-        this.currentPhoto = this.photos[currentPhotoIndex];
+        this.currentPhoto = photos[currentPhotoIndex];
         currentPhotoIndex--;
       } else {
         this.clearInterval();

@@ -9,6 +9,11 @@ export const getTakePhotoButton = () =>
 export const getSlideshowButton = () =>
   cy.get('[data-test="slideshow-button"]');
 
+export const getSlideshowCloseButton = () =>
+  cy.get('[data-test="slideshow-close-button"]');
+
+export const getSlideshowModal = () => cy.get('app-slideshow');
+
 export const getSlideshowPlayButton = () => cy.get('[data-test="play-button"]');
 
 const getCameraModal = () =>
