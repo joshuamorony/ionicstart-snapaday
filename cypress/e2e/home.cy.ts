@@ -2,6 +2,8 @@ import {
   getDaysAgoLabel,
   getDeletePhotoButton,
   getPhotoList,
+  getSlideshowButton,
+  getSlideshowPlayButton,
   getTakePhotoButton,
   navigateToHomePage,
   takePhoto,
@@ -32,5 +34,11 @@ describe('Home', () => {
   it('should display days ago label on photo', () => {
     takePhoto();
     getDaysAgoLabel().should('contain.text', 'today');
+  });
+
+  it('should be able to launch and play slideshow', () => {
+    takePhoto();
+    getSlideshowButton().click();
+    getSlideshowPlayButton().click();
   });
 });

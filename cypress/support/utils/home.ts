@@ -6,6 +6,11 @@ export const getDaysAgoLabel = () => cy.get('[data-test="days-ago-label"]');
 export const getTakePhotoButton = () =>
   cy.get('[data-test="take-photo-button"]');
 
+export const getSlideshowButton = () =>
+  cy.get('[data-test="slideshow-button"]');
+
+export const getSlideshowPlayButton = () => cy.get('[data-test="play-button"]');
+
 const getCameraModal = () =>
   cy.get('pwa-camera-modal-instance').shadow().find('pwa-camera').shadow();
 
