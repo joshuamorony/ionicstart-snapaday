@@ -7,7 +7,7 @@ import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PhotoService } from './data-access/photo/photo.service';
 import { PhotoListComponentModule } from './ui/photo-list/photo-list.component';
-import { SlideshowComponentModule } from './ui/slideshow/slideshow.component';
+import { SlideshowComponentModule } from '../slideshow/slideshow.component';
 
 @Component({
   selector: 'app-home',

@@ -7,8 +7,9 @@ import {
 } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { IonicModule } from '@ionic/angular';
-import { Photo } from '../../../shared/interfaces/photo';
+import { Photo } from '../shared/interfaces/photo';
 import { SlideshowComponent } from './slideshow.component';
+import { MockSlideshowImageComponent } from './ui/slideshow-image.component.spec';
 
 describe('SlideshowComponent', () => {
   let component: SlideshowComponent;
@@ -17,7 +18,7 @@ describe('SlideshowComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [SlideshowComponent],
+      declarations: [SlideshowComponent, MockSlideshowImageComponent],
       imports: [IonicModule.forRoot()],
       providers: [],
     }).compileComponents();
@@ -42,18 +43,18 @@ describe('SlideshowComponent', () => {
 
   describe('@Input() photos', () => {
     it('should display the oldest photo in an image tag', () => {
-      const img = fixture.debugElement.query(
-        By.css('[data-test="slideshow-image"]')
+      const slideshowImage = fixture.debugElement.query(
+        By.css('app-slideshow-image')
       );
 
-      expect(img.attributes.src).toEqual(
+      expect(slideshowImage.componentInstance.safeResourceUrl).toEqual(
         testPhotos[testPhotos.length - 1].safeResourceUrl
       );
     });
 
     it('when it is launched, it should show every photo in sequence', fakeAsync(() => {
-      const img = fixture.debugElement.query(
-        By.css('[data-test="slideshow-image"]')
+      const slideshowImage = fixture.debugElement.query(
+        By.css('app-slideshow-image')
       );
 
       component.ngOnInit();
@@ -61,21 +62,21 @@ describe('SlideshowComponent', () => {
       tick(500);
       fixture.detectChanges();
 
-      expect(img.nativeElement.src).toEqual(
+      expect(slideshowImage.componentInstance.safeResourceUrl).toEqual(
         testPhotos[testPhotos.length - 1].safeResourceUrl
       );
 
       tick(500);
       fixture.detectChanges();
 
-      expect(img.nativeElement.src).toEqual(
+      expect(slideshowImage.componentInstance.safeResourceUrl).toEqual(
         testPhotos[testPhotos.length - 2].safeResourceUrl
       );
 
       tick(500);
       fixture.detectChanges();
 
-      expect(img.nativeElement.src).toEqual(
+      expect(slideshowImage.componentInstance.safeResourceUrl).toEqual(
         testPhotos[testPhotos.length - 3].safeResourceUrl
       );
 

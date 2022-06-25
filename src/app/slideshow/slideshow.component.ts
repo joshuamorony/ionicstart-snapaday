@@ -1,7 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, NgModule, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Input,
+  NgModule,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
-import { Photo } from '../../../shared/interfaces/photo';
+import { Photo } from '../shared/interfaces/photo';
+import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
 
 @Component({
   selector: 'app-slideshow',
@@ -20,17 +29,14 @@ import { Photo } from '../../../shared/interfaces/photo';
       </ion-toolbar>
     </ion-header>
     <ion-content>
-      <div class="image-container">
-        <img
-          *ngIf="photos"
-          data-test="slideshow-image"
-          [src]="
-            currentPhoto
-              ? currentPhoto.safeResourceUrl
-              : photos[photos.length - 1].safeResourceUrl
-          "
-        />
-      </div>
+      <app-slideshow-image
+        *ngIf="photos"
+        [safeResourceUrl]="
+          currentPhoto
+            ? currentPhoto.safeResourceUrl
+            : photos[photos.length - 1].safeResourceUrl
+        "
+      ></app-slideshow-image>
     </ion-content>
   `,
   styles: [
@@ -38,25 +44,9 @@ import { Photo } from '../../../shared/interfaces/photo';
       :host {
         height: 100%;
       }
-
-      .image-container {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        img {
-          width: 100%;
-          height: auto;
-          vertical-align: middle;
-        }
-      }
     `,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SlideshowComponent implements OnInit, OnDestroy {
   @Input() photos!: Photo[] | null;
@@ -103,7 +93,7 @@ export class SlideshowComponent implements OnInit, OnDestroy {
 
 @NgModule({
   declarations: [SlideshowComponent],
-  imports: [IonicModule, CommonModule],
+  imports: [IonicModule, CommonModule, SlideshowImageComponentModule],
   exports: [SlideshowComponent],
 })
 export class SlideshowComponentModule {}
