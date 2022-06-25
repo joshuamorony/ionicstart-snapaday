@@ -3,11 +3,12 @@ import { ChangeDetectionStrategy, Component, NgModule } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { IonicModule, IonRouterOutlet } from '@ionic/angular';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PhotoService } from './data-access/photo/photo.service';
 import { PhotoListComponentModule } from './ui/photo-list/photo-list.component';
 import { SlideshowComponentModule } from '../slideshow/slideshow.component';
+import { Photo } from '../shared/interfaces/photo';
 
 @Component({
   selector: 'app-home',
@@ -37,17 +38,17 @@ import { SlideshowComponentModule } from '../slideshow/slideshow.component';
         [photos]="photos$ | async"
         (delete)="photoService.deletePhoto($event)"
       ></app-photo-list>
+      <ion-modal
+        [isOpen]="modalIsOpen$ | async"
+        [canDismiss]="true"
+        [presentingElement]="routerOutlet.nativeEl"
+        (ionModalDidDismiss)="modalIsOpen$.next(false)"
+      >
+        <ng-template>
+          <app-slideshow [photos]="(photos$ | async)!"></app-slideshow>
+        </ng-template>
+      </ion-modal>
     </ion-content>
-    <ion-modal
-      [isOpen]="modalIsOpen$ | async"
-      [canDismiss]="true"
-      [presentingElement]="routerOutlet.nativeEl"
-      (ionModalDidDismiss)="modalIsOpen$.next(false)"
-    >
-      <ng-template>
-        <app-slideshow [photos]="photos$ | async"></app-slideshow>
-      </ng-template>
-    </ion-modal>
   `,
   styles: [
     `

@@ -42,25 +42,12 @@ describe('SlideshowComponent', () => {
   });
 
   describe('@Input() photos', () => {
-    it('should display the oldest photo in an image tag', () => {
-      const slideshowImage = fixture.debugElement.query(
-        By.css('app-slideshow-image')
-      );
-
-      expect(slideshowImage.componentInstance.safeResourceUrl).toEqual(
-        testPhotos[testPhotos.length - 1].safeResourceUrl
-      );
-    });
-
     it('when it is launched, it should show every photo in sequence', fakeAsync(() => {
-      const slideshowImage = fixture.debugElement.query(
-        By.css('app-slideshow-image')
-      );
-
-      component.ngOnInit();
-
       tick(500);
       fixture.detectChanges();
+      const slideshowImage = fixture.debugElement.query(
+        By.css('app-slideshow-image')
+      );
 
       expect(slideshowImage.componentInstance.safeResourceUrl).toEqual(
         testPhotos[testPhotos.length - 1].safeResourceUrl
@@ -79,8 +66,6 @@ describe('SlideshowComponent', () => {
       expect(slideshowImage.componentInstance.safeResourceUrl).toEqual(
         testPhotos[testPhotos.length - 3].safeResourceUrl
       );
-
-      tick(500);
     }));
   });
 });

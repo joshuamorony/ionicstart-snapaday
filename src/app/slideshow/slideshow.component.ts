@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   Input,
   NgModule,
@@ -9,6 +8,8 @@ import {
   OnInit,
 } from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
+import { BehaviorSubject, from, of } from 'rxjs';
+import { concatMap, delay, switchMap, tap } from 'rxjs/operators';
 import { Photo } from '../shared/interfaces/photo';
 import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
 
@@ -30,12 +31,8 @@ import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
     </ion-header>
     <ion-content>
       <app-slideshow-image
-        *ngIf="photos"
-        [safeResourceUrl]="
-          currentPhoto
-            ? currentPhoto.safeResourceUrl
-            : photos[photos.length - 1].safeResourceUrl
-        "
+        *ngIf="currentPhoto$ | async as photo"
+        [safeResourceUrl]="photo.safeResourceUrl"
       ></app-slideshow-image>
     </ion-content>
   `,
@@ -48,46 +45,28 @@ import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SlideshowComponent implements OnInit, OnDestroy {
-  @Input() photos!: Photo[] | null;
-  currentPhoto: Photo | null = null;
-
-  private slideshowInterval: ReturnType<typeof setInterval> | null = null;
+export class SlideshowComponent {
+  photos$ = new BehaviorSubject<Photo[]>([]);
+  currentPhoto$ = this.photos$.pipe(
+    // Switch to stream that emits one photo from the array at a time (in reverse order)
+    switchMap((photos) =>
+      from(photos.reverse()).pipe(
+        // For each emission, switch to a stream of just that one value
+        concatMap((photo) =>
+          of(photo).pipe(
+            // Wait 500 ms before emitting, concatMap will cause stream to wait for this
+            // this value to emit before continuing on to the next one
+            delay(500)
+          )
+        )
+      )
+    )
+  );
 
   constructor(protected modalCtrl: ModalController) {}
 
-  ngOnInit() {
-    this.playSlideshow();
-  }
-
-  ngOnDestroy() {
-    this.clearInterval();
-  }
-
-  playSlideshow() {
-    if (!this.photos) {
-      return;
-    }
-
-    let currentPhotoIndex = this.photos.length - 1;
-
-    // Clear interval if there is one set
-    this.clearInterval();
-
-    const photos = this.photos;
-
-    this.slideshowInterval = setInterval(() => {
-      if (currentPhotoIndex >= 0) {
-        this.currentPhoto = photos[currentPhotoIndex];
-        currentPhotoIndex--;
-      } else {
-        this.clearInterval();
-      }
-    }, 500);
-  }
-
-  clearInterval() {
-    clearInterval(this.slideshowInterval ?? undefined);
+  @Input() set photos(value: Photo[]) {
+    this.photos$.next(value);
   }
 }
 
