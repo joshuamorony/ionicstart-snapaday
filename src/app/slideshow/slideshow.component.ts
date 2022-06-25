@@ -8,7 +8,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
-import { BehaviorSubject, from, of } from 'rxjs';
+import { BehaviorSubject, from, Observable, of } from 'rxjs';
 import { concatMap, delay, switchMap, tap } from 'rxjs/operators';
 import { Photo } from '../shared/interfaces/photo';
 import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
@@ -46,27 +46,26 @@ import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SlideshowComponent {
-  photos$ = new BehaviorSubject<Photo[]>([]);
-  currentPhoto$ = this.photos$.pipe(
-    // Switch to stream that emits one photo from the array at a time (in reverse order)
-    switchMap((photos) =>
-      from(photos.reverse()).pipe(
-        // For each emission, switch to a stream of just that one value
-        concatMap((photo) =>
-          of(photo).pipe(
-            // Wait 500 ms before emitting, concatMap will cause stream to wait for this
-            // this value to emit before continuing on to the next one
-            delay(500)
-          )
-        )
-      )
-    )
-  );
+  currentPhoto$: Observable<Photo> | undefined;
 
   constructor(protected modalCtrl: ModalController) {}
 
-  @Input() set photos(value: Photo[]) {
-    this.photos$.next(value);
+  @Input() set photos(value: Observable<Photo[]>) {
+    this.currentPhoto$ = value.pipe(
+      // Switch to stream that emits one photo from the array at a time (in reverse order)
+      switchMap((photos) =>
+        from(photos.reverse()).pipe(
+          // For each emission, switch to a stream of just that one value
+          concatMap((photo) =>
+            of(photo).pipe(
+              // Wait 500 ms before emitting, concatMap will cause stream to wait for this
+              // this value to emit before continuing on to the next one
+              delay(500)
+            )
+          )
+        )
+      )
+    );
   }
 }
 

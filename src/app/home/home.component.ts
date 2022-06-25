@@ -45,7 +45,7 @@ import { Photo } from '../shared/interfaces/photo';
         (ionModalDidDismiss)="modalIsOpen$.next(false)"
       >
         <ng-template>
-          <app-slideshow [photos]="(photos$ | async)!"></app-slideshow>
+          <app-slideshow [photos]="photos$"></app-slideshow>
         </ng-template>
       </ion-modal>
     </ion-content>

@@ -7,6 +7,7 @@ import {
 } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { IonicModule } from '@ionic/angular';
+import { of } from 'rxjs';
 import { Photo } from '../shared/interfaces/photo';
 import { SlideshowComponent } from './slideshow.component';
 import { MockSlideshowImageComponent } from './ui/slideshow-image.component.spec';
@@ -32,7 +33,7 @@ describe('SlideshowComponent', () => {
       { safeResourceUrl: 'http://localhost/path3' },
     ] as any;
 
-    component.photos = testPhotos;
+    component.photos = of(testPhotos);
 
     fixture.detectChanges();
   }));
