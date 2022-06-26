@@ -43,7 +43,7 @@ describe('SlideshowComponent', () => {
   });
 
   describe('@Input() photos', () => {
-    it('when it is launched, it should show every photo in sequence', fakeAsync(() => {
+    fit('when it is launched, it should show every photo in sequence', fakeAsync(() => {
       tick(500);
       fixture.detectChanges();
       const slideshowImage = fixture.debugElement.query(
@@ -56,15 +56,21 @@ describe('SlideshowComponent', () => {
 
       tick(500);
       fixture.detectChanges();
+      const slideshowImageTwo = fixture.debugElement.query(
+        By.css('app-slideshow-image')
+      );
 
-      expect(slideshowImage.componentInstance.safeResourceUrl).toEqual(
+      expect(slideshowImageTwo.componentInstance.safeResourceUrl).toEqual(
         testPhotos[testPhotos.length - 2].safeResourceUrl
       );
 
       tick(500);
       fixture.detectChanges();
+      const slideshowImageThree = fixture.debugElement.query(
+        By.css('app-slideshow-image')
+      );
 
-      expect(slideshowImage.componentInstance.safeResourceUrl).toEqual(
+      expect(slideshowImageThree.componentInstance.safeResourceUrl).toEqual(
         testPhotos[testPhotos.length - 3].safeResourceUrl
       );
     }));

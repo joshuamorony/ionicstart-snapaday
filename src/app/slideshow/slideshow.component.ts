@@ -4,12 +4,10 @@ import {
   Component,
   Input,
   NgModule,
-  OnDestroy,
-  OnInit,
 } from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
-import { BehaviorSubject, from, Observable, of } from 'rxjs';
-import { concatMap, delay, switchMap, tap } from 'rxjs/operators';
+import { from, Observable, of } from 'rxjs';
+import { concatMap, delay, switchMap } from 'rxjs/operators';
 import { Photo } from '../shared/interfaces/photo';
 import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
 
@@ -58,8 +56,8 @@ export class SlideshowComponent {
           // For each emission, switch to a stream of just that one value
           concatMap((photo) =>
             of(photo).pipe(
-              // Wait 500 ms before emitting, concatMap will cause stream to wait for this
-              // this value to emit before continuing on to the next one
+              // Wait 500 ms before making it the currentPhoto
+              // Then concatMap will move on to the next photo
               delay(500)
             )
           )
