@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { from, Observable, of } from 'rxjs';
-import { concatMap, delay, switchMap } from 'rxjs/operators';
+import { concatMap, delay, map, switchMap } from 'rxjs/operators';
 import { Photo } from '../shared/interfaces/photo';
 import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
 
@@ -48,19 +48,14 @@ export class SlideshowComponent {
 
   constructor(protected modalCtrl: ModalController) {}
 
-  @Input() set photos(value: Observable<Photo[]>) {
-    this.currentPhoto$ = value.pipe(
-      // Switch to stream that emits one photo from the array at a time (in reverse order)
-      switchMap((photos) =>
-        from(photos.reverse()).pipe(
-          // For each emission, switch to a stream of just that one value
-          concatMap((photo) =>
-            of(photo).pipe(
-              // Wait 500 ms before making it the currentPhoto
-              // Then concatMap will move on to the next photo
-              delay(500)
-            )
-          )
+  @Input() set photos(value: Photo[]) {
+    this.currentPhoto$ = from([...value].reverse()).pipe(
+      // For each emission, switch to a stream of just that one value
+      concatMap((photo) =>
+        of(photo).pipe(
+          // Wait 500 ms before making it the currentPhoto
+          // Then concatMap will move on to the next photo
+          delay(500)
         )
       )
     );

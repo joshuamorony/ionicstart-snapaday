@@ -44,7 +44,7 @@ import { PhotoListComponentModule } from './ui/photo-list/photo-list.component';
         (ionModalDidDismiss)="modalIsOpen$.next(false)"
       >
         <ng-template>
-          <app-slideshow [photos]="photos$"></app-slideshow>
+          <app-slideshow [photos]="photos$ | async"></app-slideshow>
         </ng-template>
       </ion-modal>
     </ion-content>
