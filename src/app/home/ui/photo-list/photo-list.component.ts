@@ -61,7 +61,7 @@ import { DaysAgoPipeModule } from '../days-ago/days-ago.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PhotoListComponent {
-  @Input() photos!: Photo[] | null;
+  @Input() photos!: Photo[];
   @Output() delete = new EventEmitter<string>();
 
   constructor() {}

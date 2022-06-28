@@ -34,7 +34,7 @@ import { PhotoListComponentModule } from './ui/photo-list/photo-list.component';
     </ion-header>
     <ion-content>
       <app-photo-list
-        [photos]="photos$ | async"
+        [photos]="(photos$ | async)!"
         (delete)="photoService.deletePhoto($event)"
       ></app-photo-list>
       <ion-modal
