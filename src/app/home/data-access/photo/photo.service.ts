@@ -1,40 +1,40 @@
 import { Injectable } from '@angular/core';
-import { Capacitor } from '@capacitor/core';
 import {
   Camera,
-  ImageOptions,
   CameraResultType,
   CameraSource,
+  ImageOptions,
 } from '@capacitor/camera';
-import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Capacitor } from '@capacitor/core';
+import { Directory, Filesystem } from '@capacitor/filesystem';
 import { Platform } from '@ionic/angular';
 import { BehaviorSubject } from 'rxjs';
+import { map, tap, take } from 'rxjs/operators';
+import { StorageService } from '../../../shared/data-access/storage.service';
 import { Photo } from '../../../shared/interfaces/photo';
-import { Storage } from '@ionic/storage-angular';
-import { map, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PhotoService {
   private photos$ = new BehaviorSubject<Photo[]>([]);
-  private storage: Storage | null = null;
 
-  constructor(private platform: Platform, private ionicStorage: Storage) {}
+  constructor(
+    private platform: Platform,
+    private storageService: StorageService
+  ) {}
 
-  async init() {
-    this.storage = await this.ionicStorage.create();
-
-    const photos = await this.storage?.get('photos');
-    if (photos) {
-      this.photos$.next(photos);
-    }
+  load() {
+    this.storageService
+      .load()
+      .pipe(take(1))
+      .subscribe((photos) => {
+        this.photos$.next(photos);
+      });
   }
 
   getPhotos() {
-    return this.photos$.pipe(
-      tap((photos) => this.storage?.set('photos', photos))
-    );
+    return this.photos$.pipe(tap((photos) => this.storageService.save(photos)));
   }
 
   canTakePhoto() {

@@ -1,3 +1,4 @@
+import { ChangeDetectionStrategy } from '@angular/core';
 import {
   ComponentFixture,
   fakeAsync,
@@ -5,9 +6,8 @@ import {
   tick,
   waitForAsync,
 } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
+import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { IonicModule } from '@ionic/angular';
-import { of } from 'rxjs';
 import { Photo } from '../shared/interfaces/photo';
 import { SlideshowComponent } from './slideshow.component';
 import { MockSlideshowImageComponent } from './ui/slideshow-image.component.spec';
@@ -22,7 +22,11 @@ describe('SlideshowComponent', () => {
       declarations: [SlideshowComponent, MockSlideshowImageComponent],
       imports: [IonicModule.forRoot()],
       providers: [],
-    }).compileComponents();
+    })
+      .overrideComponent(SlideshowComponent, {
+        set: { changeDetection: ChangeDetectionStrategy.Default },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(SlideshowComponent);
     component = fixture.componentInstance;
@@ -33,8 +37,6 @@ describe('SlideshowComponent', () => {
       { safeResourceUrl: 'http://localhost/path3' },
     ] as any;
 
-    component.photos = of(testPhotos);
-
     fixture.detectChanges();
   }));
 
@@ -43,34 +45,28 @@ describe('SlideshowComponent', () => {
   });
 
   describe('@Input() photos', () => {
-    fit('when it is launched, it should show every photo in sequence', fakeAsync(() => {
-      tick(500);
+    it('when it is launched, it should show every photo in sequence', fakeAsync(() => {
+      const observerSpy = subscribeSpyTo(component.currentPhoto$);
+      component.photos = testPhotos;
       fixture.detectChanges();
-      const slideshowImage = fixture.debugElement.query(
-        By.css('app-slideshow-image')
-      );
 
-      expect(slideshowImage.componentInstance.safeResourceUrl).toEqual(
+      expect(observerSpy.getLastValue()).toBe(undefined);
+
+      tick(500);
+
+      expect(observerSpy.getLastValue()?.safeResourceUrl).toEqual(
         testPhotos[testPhotos.length - 1].safeResourceUrl
       );
 
       tick(500);
-      fixture.detectChanges();
-      const slideshowImageTwo = fixture.debugElement.query(
-        By.css('app-slideshow-image')
-      );
 
-      expect(slideshowImageTwo.componentInstance.safeResourceUrl).toEqual(
+      expect(observerSpy.getLastValue()?.safeResourceUrl).toEqual(
         testPhotos[testPhotos.length - 2].safeResourceUrl
       );
 
       tick(500);
-      fixture.detectChanges();
-      const slideshowImageThree = fixture.debugElement.query(
-        By.css('app-slideshow-image')
-      );
 
-      expect(slideshowImageThree.componentInstance.safeResourceUrl).toEqual(
+      expect(observerSpy.getLastValue()?.safeResourceUrl).toEqual(
         testPhotos[testPhotos.length - 3].safeResourceUrl
       );
     }));

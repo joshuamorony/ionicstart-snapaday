@@ -6,8 +6,8 @@ import {
   NgModule,
 } from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
-import { from, Observable, of } from 'rxjs';
-import { concatMap, delay, map, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, from, of } from 'rxjs';
+import { concatMap, delay, switchMap } from 'rxjs/operators';
 import { Photo } from '../shared/interfaces/photo';
 import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
 
@@ -44,21 +44,24 @@ import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SlideshowComponent {
-  currentPhoto$: Observable<Photo> | undefined;
+  currentPhotos$ = new BehaviorSubject<Photo[]>([]);
+  currentPhoto$ = this.currentPhotos$.pipe(
+    // Emit one photo at a time
+    switchMap((photos) => from(photos)),
+    concatMap((photo) =>
+      // Create a new stream for each individual photo
+      of(photo).pipe(
+        // Creating a stream for each individual photo
+        // will allow us to delay the start of the stream
+        delay(500)
+      )
+    )
+  );
 
   constructor(protected modalCtrl: ModalController) {}
 
   @Input() set photos(value: Photo[]) {
-    this.currentPhoto$ = from([...value].reverse()).pipe(
-      // For each emission, switch to a stream of just that one value
-      concatMap((photo) =>
-        of(photo).pipe(
-          // Wait 500 ms before making it the currentPhoto
-          // Then concatMap will move on to the next photo
-          delay(500)
-        )
-      )
-    );
+    this.currentPhotos$.next([...value].reverse());
   }
 }
 

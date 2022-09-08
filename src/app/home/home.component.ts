@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, NgModule } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { IonicModule, IonRouterOutlet } from '@ionic/angular';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { SlideshowComponentModule } from '../slideshow/slideshow.component';
 import { PhotoService } from './data-access/photo/photo.service';
@@ -12,42 +12,44 @@ import { PhotoListComponentModule } from './ui/photo-list/photo-list.component';
 @Component({
   selector: 'app-home',
   template: `
-    <ion-header>
-      <ion-toolbar color="danger">
-        <ion-title>Snapaday</ion-title>
-        <ion-buttons slot="end">
-          <ion-button
-            [disabled]="(photoService.canTakePhoto() | async) === false"
-            (click)="photoService.takePhoto()"
-            data-test="take-photo-button"
-          >
-            <ion-icon name="camera-outline" slot="icon-only"></ion-icon>
-          </ion-button>
-          <ion-button
-            data-test="slideshow-button"
-            (click)="modalIsOpen$.next(true)"
-          >
-            <ion-icon name="play" slot="icon-only"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-    <ion-content>
-      <app-photo-list
-        [photos]="(photos$ | async)!"
-        (delete)="photoService.deletePhoto($event)"
-      ></app-photo-list>
-      <ion-modal
-        [isOpen]="modalIsOpen$ | async"
-        [canDismiss]="true"
-        [presentingElement]="routerOutlet.nativeEl"
-        (ionModalDidDismiss)="modalIsOpen$.next(false)"
-      >
-        <ng-template>
-          <app-slideshow [photos]="(photos$ | async)!"></app-slideshow>
-        </ng-template>
-      </ion-modal>
-    </ion-content>
+    <ng-container *ngIf="vm$ | async as vm">
+      <ion-header>
+        <ion-toolbar color="danger">
+          <ion-title>Snapaday</ion-title>
+          <ion-buttons slot="end">
+            <ion-button
+              [disabled]="vm.canTakePhoto === false"
+              (click)="photoService.takePhoto()"
+              data-test="take-photo-button"
+            >
+              <ion-icon name="camera-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+            <ion-button
+              data-test="slideshow-button"
+              (click)="modalIsOpen$.next(true)"
+            >
+              <ion-icon name="play" slot="icon-only"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <app-photo-list
+          [photos]="vm.photos"
+          (delete)="photoService.deletePhoto($event)"
+        ></app-photo-list>
+        <ion-modal
+          [isOpen]="vm.modalIsOpen"
+          [canDismiss]="true"
+          [presentingElement]="routerOutlet.nativeEl"
+          (ionModalDidDismiss)="modalIsOpen$.next(false)"
+        >
+          <ng-template>
+            <app-slideshow [photos]="vm.photos"></app-slideshow>
+          </ng-template>
+        </ion-modal>
+      </ion-content>
+    </ng-container>
   `,
   styles: [
     `
@@ -72,6 +74,18 @@ export class HomeComponent {
   );
 
   modalIsOpen$ = new BehaviorSubject(false);
+
+  vm$ = combineLatest([
+    this.photos$,
+    this.modalIsOpen$,
+    this.photoService.canTakePhoto(),
+  ]).pipe(
+    map(([photos, modalIsOpen, canTakePhoto]) => ({
+      photos,
+      modalIsOpen,
+      canTakePhoto,
+    }))
+  );
 
   constructor(
     protected photoService: PhotoService,

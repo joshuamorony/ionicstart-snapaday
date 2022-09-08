@@ -21,11 +21,11 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should call init method of photo service', () => {
+  it('should call load method of photo service', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.debugElement.componentInstance;
     const photoService = fixture.debugElement.injector.get(PhotoService);
     app.ngOnInit();
-    expect(photoService.init).toHaveBeenCalled();
+    expect(photoService.load).toHaveBeenCalled();
   });
 });

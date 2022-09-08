@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { TestBed } from '@angular/core/testing';
+import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { Capacitor } from '@capacitor/core';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { Platform } from '@ionic/angular';
 import { PhotoService } from './photo.service';
-import { Storage } from '@ionic/storage-angular';
+import { StorageService } from '../../../shared/data-access/storage.service';
+import { of } from 'rxjs';
 
 jest.mock('@capacitor/core', () => ({
   ...jest.requireActual('@capacitor/core'),
@@ -42,7 +43,7 @@ jest.mock('@capacitor/filesystem', () => ({
 describe('PhotoService', () => {
   let service: PhotoService;
   let platform: Platform;
-  let storage: Storage;
+  let storageService: StorageService;
 
   const testPhotoOne = {
     name: 'photo1',
@@ -61,103 +62,113 @@ describe('PhotoService', () => {
     TestBed.configureTestingModule({
       providers: [
         {
+          provide: StorageService,
+          useValue: {
+            load: jest.fn().mockReturnValue(of(testLoadData)),
+            save: jest.fn(),
+          },
+        },
+        {
           provide: Platform,
           useValue: {
             is: jest.fn(),
           },
         },
-        {
-          provide: Storage,
-          useValue: {
-            create: jest.fn().mockResolvedValue({
-              set: setMock,
-              get: getMock,
-            }),
-          },
-        },
       ],
     });
-    service = TestBed.inject(PhotoService);
-    platform = TestBed.inject(Platform);
-    storage = TestBed.inject(Storage);
 
     jest.clearAllMocks();
   });
 
   it('should be created', () => {
+    storageService = TestBed.inject(StorageService);
+    service = TestBed.inject(PhotoService);
+    platform = TestBed.inject(Platform);
+
     expect(service).toBeTruthy();
   });
 
   describe('canTakePhoto()', () => {
-    it('should emit true if no photos are present', async () => {
-      jest.spyOn(storage, 'create').mockResolvedValue({
-        get: jest.fn().mockResolvedValue(undefined),
-      } as any);
+    it('should emit true if no photos are present', () => {
+      TestBed.overrideProvider(StorageService, {
+        useValue: {
+          load: jest.fn().mockReturnValue(of([])),
+          save: jest.fn(),
+        },
+      });
+
+      storageService = TestBed.inject(StorageService);
+      service = TestBed.inject(PhotoService);
+      platform = TestBed.inject(Platform);
 
       const observerSpy = subscribeSpyTo(service.canTakePhoto());
-      await service.init();
+      service.load();
       expect(observerSpy.getLastValue()).toBe(true);
     });
 
-    it('should emit true if there are no photos that have been taken today', async () => {
-      jest.spyOn(storage, 'create').mockResolvedValue({
-        get: jest.fn().mockResolvedValue([{ dateTaken: new Date(2022, 5, 5) }]),
-      } as any);
+    it('should emit true if there are no photos that have been taken today', () => {
+      TestBed.overrideProvider(StorageService, {
+        useValue: {
+          load: jest
+            .fn()
+            .mockReturnValue(of([{ dateTaken: new Date(2022, 5, 5) }])),
+          save: jest.fn(),
+        },
+      });
+
+      storageService = TestBed.inject(StorageService);
+      service = TestBed.inject(PhotoService);
+      platform = TestBed.inject(Platform);
 
       const observerSpy = subscribeSpyTo(service.canTakePhoto());
-      await service.init();
+      service.load();
       expect(observerSpy.getLastValue()).toBe(true);
     });
 
-    it('should emit false if a photo exists that has been taken today', async () => {
-      jest.spyOn(storage, 'create').mockResolvedValue({
-        get: jest.fn().mockResolvedValue([{ dateTaken: new Date() }]),
-      } as any);
+    it('should emit false if a photo exists that has been taken today', () => {
+      TestBed.overrideProvider(StorageService, {
+        useValue: {
+          load: jest.fn().mockReturnValue(of([{ dateTaken: new Date() }])),
+          save: jest.fn(),
+        },
+      });
+
+      storageService = TestBed.inject(StorageService);
+      service = TestBed.inject(PhotoService);
+      platform = TestBed.inject(Platform);
 
       const observerSpy = subscribeSpyTo(service.canTakePhoto());
-      await service.init();
+      service.load();
       expect(observerSpy.getLastValue()).toBe(false);
     });
   });
 
   describe('init()', () => {
-    it('should return a promise', () => {
-      expect(service.init()).toBeInstanceOf(Promise);
-    });
-
-    it('should emit the photos from storage on getPhotos if defined', async () => {
+    it('should emit the photos from storage on getPhotos if defined', () => {
+      storageService = TestBed.inject(StorageService);
+      service = TestBed.inject(PhotoService);
+      platform = TestBed.inject(Platform);
       const observerSpy = subscribeSpyTo(service.getPhotos());
-      await service.init();
+      service.load();
       expect(observerSpy.getLastValue()).toEqual(testLoadData);
-    });
-
-    it('should not emit the photos from storage on getPhotos if not defined', async () => {
-      jest.spyOn(storage, 'create').mockResolvedValue({
-        get: jest.fn().mockResolvedValue(undefined),
-      } as any);
-
-      const observerSpy = subscribeSpyTo(service.getPhotos());
-      await service.init();
-      expect(observerSpy.getLastValue()).toEqual([]);
     });
   });
 
   describe('getPhotos()', () => {
     it('should set photo data in storage whenever it emits', async () => {
-      const observerSpy = subscribeSpyTo(service.getPhotos());
-      await service.init();
+      jest.spyOn(storageService, 'save');
+
+      const photoSpy = subscribeSpyTo(service.getPhotos());
+      service.load();
       await service.takePhoto();
-      expect(setMock).toHaveBeenCalledWith(
-        'photos',
-        observerSpy.getLastValue()
-      );
+      expect(storageService.save).toHaveBeenCalledWith(photoSpy.getLastValue());
     });
   });
 
   describe('deletePhoto()', () => {
     it('should cause getPhotos to emit without the photo that was deleted', async () => {
       const observerSpy = subscribeSpyTo(service.getPhotos());
-      await service.init();
+      service.load();
       service.deletePhoto(testPhotoOne.name);
       expect(
         observerSpy
@@ -168,7 +179,7 @@ describe('PhotoService', () => {
 
     it('should delete the file path with Filesystem if running natively', async () => {
       jest.spyOn(platform, 'is').mockReturnValue(true);
-      await service.init();
+      service.load();
       service.deletePhoto(testPhotoOne.name);
 
       expect(Filesystem.deleteFile).toHaveBeenCalledWith({
@@ -179,16 +190,29 @@ describe('PhotoService', () => {
   });
 
   describe('takePhoto()', () => {
-    it('should not take photo if photo has already been taken', async () => {
-      jest.spyOn(storage, 'create').mockResolvedValue({
-        get: jest.fn().mockResolvedValue([{ dateTaken: new Date() }]),
-      } as any);
-      await service.init();
-      await service.takePhoto();
+    it('should not take photo if photo has already been taken', fakeAsync(() => {
+      TestBed.overrideProvider(StorageService, {
+        useValue: {
+          load: jest.fn().mockReturnValue(of([{ dateTaken: new Date() }])),
+          save: jest.fn(),
+        },
+      });
+
+      storageService = TestBed.inject(StorageService);
+      service = TestBed.inject(PhotoService);
+      platform = TestBed.inject(Platform);
+
+      service.load();
+      tick();
+      service.takePhoto();
+      tick();
       expect(Camera.getPhoto).not.toHaveBeenCalled();
-    });
+    }));
 
     it('should use URI result type if running natively', async () => {
+      storageService = TestBed.inject(StorageService);
+      service = TestBed.inject(PhotoService);
+      platform = TestBed.inject(Platform);
       jest.spyOn(platform, 'is').mockReturnValue(true);
 
       await service.takePhoto();
@@ -199,6 +223,9 @@ describe('PhotoService', () => {
     });
 
     it('should use data url result type if running as PWA', async () => {
+      storageService = TestBed.inject(StorageService);
+      service = TestBed.inject(PhotoService);
+      platform = TestBed.inject(Platform);
       jest.spyOn(platform, 'is').mockReturnValue(false);
 
       await service.takePhoto();
@@ -209,6 +236,9 @@ describe('PhotoService', () => {
     });
 
     it('should use the Camera as the source', async () => {
+      storageService = TestBed.inject(StorageService);
+      service = TestBed.inject(PhotoService);
+      platform = TestBed.inject(Platform);
       await service.takePhoto();
 
       expect(Camera.getPhoto).toHaveBeenCalledWith(
@@ -217,12 +247,18 @@ describe('PhotoService', () => {
     });
 
     it('should not attempt to save natively if not running natively', async () => {
+      storageService = TestBed.inject(StorageService);
+      service = TestBed.inject(PhotoService);
+      platform = TestBed.inject(Platform);
       jest.spyOn(platform, 'is').mockReturnValue(false);
       await service.takePhoto();
       expect(Filesystem.readFile).not.toHaveBeenCalled();
     });
 
     it('should cause result to emit with result of getPhoto as the dataUrl if not running natively', async () => {
+      storageService = TestBed.inject(StorageService);
+      service = TestBed.inject(PhotoService);
+      platform = TestBed.inject(Platform);
       const observerSpy = subscribeSpyTo(service.getPhotos());
 
       jest.spyOn(platform, 'is').mockReturnValue(false);
@@ -235,6 +271,9 @@ describe('PhotoService', () => {
 
     describe('should save result to file system if running natively', () => {
       beforeEach(() => {
+        storageService = TestBed.inject(StorageService);
+        service = TestBed.inject(PhotoService);
+        platform = TestBed.inject(Platform);
         jest.spyOn(platform, 'is').mockReturnValue(true);
       });
 

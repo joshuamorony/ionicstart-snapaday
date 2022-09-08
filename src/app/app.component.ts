@@ -1,11 +1,16 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { RouteReuseStrategy } from '@angular/router';
+import {
+  PreloadAllModules,
+  RouteReuseStrategy,
+  RouterModule,
+} from '@angular/router';
 
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 
-import { AppRoutingModule } from './app-routing.module';
+import { Drivers } from '@ionic/storage';
 import { IonicStorageModule } from '@ionic/storage-angular';
+import * as CordovaSQLiteDriver from 'localforage-cordovasqlitedriver';
 
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { PhotoService } from './home/data-access/photo/photo.service';
@@ -24,7 +29,7 @@ export class AppComponent implements OnInit {
   constructor(private photoService: PhotoService) {}
 
   ngOnInit() {
-    this.photoService.init();
+    this.photoService.load();
   }
 }
 
@@ -33,8 +38,29 @@ export class AppComponent implements OnInit {
   imports: [
     BrowserModule,
     IonicModule.forRoot(),
-    IonicStorageModule.forRoot(),
-    AppRoutingModule,
+    IonicStorageModule.forRoot({
+      driverOrder: [
+        // eslint-disable-next-line no-underscore-dangle
+        CordovaSQLiteDriver._driver,
+        Drivers.IndexedDB,
+        Drivers.LocalStorage,
+      ],
+    }),
+    RouterModule.forRoot(
+      [
+        {
+          path: 'home',
+          loadChildren: () =>
+            import('./home/home.component').then((m) => m.HomeModule),
+        },
+        {
+          path: '',
+          redirectTo: 'home',
+          pathMatch: 'full',
+        },
+      ],
+      { preloadingStrategy: PreloadAllModules }
+    ),
   ],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
   bootstrap: [AppComponent],
