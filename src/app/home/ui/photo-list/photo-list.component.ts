@@ -40,8 +40,11 @@ import { DaysAgoPipeModule } from '../days-ago/days-ago.pipe';
         padding: 0;
       }
 
-      ion-item {
+      ion-item-sliding {
         margin-bottom: 2px;
+      }
+
+      ion-item {
         --inner-padding-end: 0px;
         --padding-start: 0px;
 
