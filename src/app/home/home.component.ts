@@ -18,7 +18,7 @@ import { PhotoListComponentModule } from './ui/photo-list/photo-list.component';
           <ion-title>Snapaday</ion-title>
           <ion-buttons slot="end">
             <ion-button
-              [disabled]="vm.canTakePhoto === false"
+              [disabled]="vm.hasTakenPhotoToday === true"
               (click)="photoService.takePhoto()"
               data-test="take-photo-button"
             >
@@ -62,7 +62,7 @@ import { PhotoListComponentModule } from './ui/photo-list/photo-list.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent {
-  photos$ = this.photoService.getPhotos().pipe(
+  photos$ = this.photoService.photos$.pipe(
     map((photos) =>
       photos.map((photo) => ({
         ...photo,
@@ -78,12 +78,12 @@ export class HomeComponent {
   vm$ = combineLatest([
     this.photos$,
     this.modalIsOpen$,
-    this.photoService.canTakePhoto(),
+    this.photoService.hasTakenPhotoToday$,
   ]).pipe(
-    map(([photos, modalIsOpen, canTakePhoto]) => ({
+    map(([photos, modalIsOpen, hasTakenPhotoToday]) => ({
       photos,
       modalIsOpen,
-      canTakePhoto,
+      hasTakenPhotoToday,
     }))
   );
 

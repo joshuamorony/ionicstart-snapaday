@@ -88,7 +88,7 @@ describe('PhotoService', () => {
     expect(service).toBeTruthy();
   });
 
-  describe('canTakePhoto()', () => {
+  describe('hasTakenPhotoToday$', () => {
     it('should emit true if no photos are present', () => {
       TestBed.overrideProvider(StorageService, {
         useValue: {
@@ -101,9 +101,9 @@ describe('PhotoService', () => {
       service = TestBed.inject(PhotoService);
       platform = TestBed.inject(Platform);
 
-      const observerSpy = subscribeSpyTo(service.canTakePhoto());
+      const observerSpy = subscribeSpyTo(service.hasTakenPhotoToday$);
       service.load();
-      expect(observerSpy.getLastValue()).toBe(true);
+      expect(observerSpy.getLastValue()).toBe(false);
     });
 
     it('should emit true if there are no photos that have been taken today', () => {
@@ -120,9 +120,9 @@ describe('PhotoService', () => {
       service = TestBed.inject(PhotoService);
       platform = TestBed.inject(Platform);
 
-      const observerSpy = subscribeSpyTo(service.canTakePhoto());
+      const observerSpy = subscribeSpyTo(service.hasTakenPhotoToday$);
       service.load();
-      expect(observerSpy.getLastValue()).toBe(true);
+      expect(observerSpy.getLastValue()).toBe(false);
     });
 
     it('should emit false if a photo exists that has been taken today', () => {
@@ -137,9 +137,9 @@ describe('PhotoService', () => {
       service = TestBed.inject(PhotoService);
       platform = TestBed.inject(Platform);
 
-      const observerSpy = subscribeSpyTo(service.canTakePhoto());
+      const observerSpy = subscribeSpyTo(service.hasTakenPhotoToday$);
       service.load();
-      expect(observerSpy.getLastValue()).toBe(false);
+      expect(observerSpy.getLastValue()).toBe(true);
     });
   });
 
@@ -148,7 +148,7 @@ describe('PhotoService', () => {
       storageService = TestBed.inject(StorageService);
       service = TestBed.inject(PhotoService);
       platform = TestBed.inject(Platform);
-      const observerSpy = subscribeSpyTo(service.getPhotos());
+      const observerSpy = subscribeSpyTo(service.photos$);
       service.load();
       expect(observerSpy.getLastValue()).toEqual(testLoadData);
     });
@@ -158,7 +158,7 @@ describe('PhotoService', () => {
     it('should set photo data in storage whenever it emits', async () => {
       jest.spyOn(storageService, 'save');
 
-      const photoSpy = subscribeSpyTo(service.getPhotos());
+      const photoSpy = subscribeSpyTo(service.photos$);
       service.load();
       await service.takePhoto();
       expect(storageService.save).toHaveBeenCalledWith(photoSpy.getLastValue());
@@ -167,7 +167,7 @@ describe('PhotoService', () => {
 
   describe('deletePhoto()', () => {
     it('should cause getPhotos to emit without the photo that was deleted', async () => {
-      const observerSpy = subscribeSpyTo(service.getPhotos());
+      const observerSpy = subscribeSpyTo(service.photos$);
       service.load();
       service.deletePhoto(testPhotoOne.name);
       expect(
@@ -190,25 +190,6 @@ describe('PhotoService', () => {
   });
 
   describe('takePhoto()', () => {
-    it('should not take photo if photo has already been taken', fakeAsync(() => {
-      TestBed.overrideProvider(StorageService, {
-        useValue: {
-          load: jest.fn().mockReturnValue(of([{ dateTaken: new Date() }])),
-          save: jest.fn(),
-        },
-      });
-
-      storageService = TestBed.inject(StorageService);
-      service = TestBed.inject(PhotoService);
-      platform = TestBed.inject(Platform);
-
-      service.load();
-      tick();
-      service.takePhoto();
-      tick();
-      expect(Camera.getPhoto).not.toHaveBeenCalled();
-    }));
-
     it('should use URI result type if running natively', async () => {
       storageService = TestBed.inject(StorageService);
       service = TestBed.inject(PhotoService);
@@ -259,7 +240,7 @@ describe('PhotoService', () => {
       storageService = TestBed.inject(StorageService);
       service = TestBed.inject(PhotoService);
       platform = TestBed.inject(Platform);
-      const observerSpy = subscribeSpyTo(service.getPhotos());
+      const observerSpy = subscribeSpyTo(service.photos$);
 
       jest.spyOn(platform, 'is').mockReturnValue(false);
       await service.takePhoto();
@@ -296,7 +277,7 @@ describe('PhotoService', () => {
 
       it('should cause result to emit with result of convertFileSrc as the path', async () => {
         jest.useFakeTimers().setSystemTime(new Date('2022-01-01'));
-        const observerSpy = subscribeSpyTo(service.getPhotos());
+        const observerSpy = subscribeSpyTo(service.photos$);
 
         await service.takePhoto();
 

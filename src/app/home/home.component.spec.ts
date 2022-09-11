@@ -10,7 +10,7 @@ import { MockPhotoListComponent } from './ui/photo-list/photo-list.component.spe
 describe('HomeComponent', () => {
   let component: HomeComponent;
   let fixture: ComponentFixture<HomeComponent>;
-  let mockCanTakePhoto: BehaviorSubject<boolean>;
+  let mockHasTakenPhotoToday: BehaviorSubject<boolean>;
 
   const testPhoto = {
     name: 'test',
@@ -21,7 +21,7 @@ describe('HomeComponent', () => {
   const testPhotos = [testPhoto, testPhoto, testPhoto];
 
   beforeEach(waitForAsync(() => {
-    mockCanTakePhoto = new BehaviorSubject(true);
+    mockHasTakenPhotoToday = new BehaviorSubject(false);
 
     TestBed.configureTestingModule({
       declarations: [HomeComponent, MockPhotoListComponent],
@@ -35,8 +35,8 @@ describe('HomeComponent', () => {
           provide: PhotoService,
           useValue: {
             takePhoto: jest.fn(),
-            getPhotos: jest.fn().mockReturnValue(of(testPhotos)),
-            canTakePhoto: jest.fn().mockReturnValue(mockCanTakePhoto),
+            photos$: of(testPhotos),
+            hasTakenPhotoToday$: mockHasTakenPhotoToday,
             deletePhoto: jest.fn(),
           },
         },
@@ -62,7 +62,7 @@ describe('HomeComponent', () => {
   });
 
   it('should disable the take photo button if a photo has already been taken', () => {
-    mockCanTakePhoto.next(false);
+    mockHasTakenPhotoToday.next(true);
     fixture.detectChanges();
     const takePhotoButton = fixture.debugElement.query(
       By.css('[data-test="take-photo-button"]')

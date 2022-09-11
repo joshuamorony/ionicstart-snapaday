@@ -17,7 +17,24 @@ import { Photo } from '../../../shared/interfaces/photo';
   providedIn: 'root',
 })
 export class PhotoService {
-  private photos$ = new BehaviorSubject<Photo[]>([]);
+  #photos = new BehaviorSubject<Photo[]>([]);
+
+  // eslint-disable-next-line @typescript-eslint/member-ordering
+  photos$ = this.#photos.pipe(
+    tap((photos) => this.storageService.save(photos))
+  );
+
+  hasTakenPhotoToday$ = this.#photos.pipe(
+    map((photos) =>
+      photos.find(
+        (photo) =>
+          new Date().setHours(0, 0, 0, 0) ===
+          new Date(photo.dateTaken).setHours(0, 0, 0, 0)
+      )
+        ? true
+        : false
+    )
+  );
 
   constructor(
     private platform: Platform,
@@ -29,23 +46,11 @@ export class PhotoService {
       .load()
       .pipe(take(1))
       .subscribe((photos) => {
-        this.photos$.next(photos);
+        this.#photos.next(photos);
       });
   }
 
-  getPhotos() {
-    return this.photos$.pipe(tap((photos) => this.storageService.save(photos)));
-  }
-
-  canTakePhoto() {
-    return this.photos$.pipe(map((photos) => !this.hasTakenPhotoToday(photos)));
-  }
-
   async takePhoto() {
-    if (this.hasTakenPhotoToday(this.photos$.value)) {
-      return;
-    }
-
     const options: ImageOptions = {
       quality: 50,
       width: 600,
@@ -84,11 +89,11 @@ export class PhotoService {
   }
 
   async deletePhoto(name: string) {
-    const newPhotos = this.photos$.value.filter(
+    const newPhotos = this.#photos.value.filter(
       (photos) => photos.name !== name
     );
 
-    this.photos$.next(newPhotos);
+    this.#photos.next(newPhotos);
 
     if (this.platform.is('capacitor')) {
       await Filesystem.deleteFile({
@@ -105,19 +110,9 @@ export class PhotoService {
         path: filePath,
         dateTaken: new Date().toISOString(),
       },
-      ...this.photos$.value,
+      ...this.#photos.value,
     ];
 
-    this.photos$.next(newPhotos);
-  }
-
-  private hasTakenPhotoToday(photos: Photo[]) {
-    return photos.find(
-      (photo) =>
-        new Date().setHours(0, 0, 0, 0) ===
-        new Date(photo.dateTaken).setHours(0, 0, 0, 0)
-    )
-      ? true
-      : false;
+    this.#photos.next(newPhotos);
   }
 }
