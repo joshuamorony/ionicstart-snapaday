@@ -18,8 +18,6 @@ import { Photo } from '../../../shared/interfaces/photo';
 })
 export class PhotoService {
   #photos = new BehaviorSubject<Photo[]>([]);
-
-  // eslint-disable-next-line @typescript-eslint/member-ordering
   photos$ = this.#photos.pipe(
     tap((photos) => this.storageService.save(photos))
   );
