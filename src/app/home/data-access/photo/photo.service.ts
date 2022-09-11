@@ -17,12 +17,12 @@ import { Photo } from '../../../shared/interfaces/photo';
   providedIn: 'root',
 })
 export class PhotoService {
-  #photos = new BehaviorSubject<Photo[]>([]);
-  photos$ = this.#photos.pipe(
+  #photos$ = new BehaviorSubject<Photo[]>([]);
+  photos$ = this.#photos$.pipe(
     tap((photos) => this.storageService.save(photos))
   );
 
-  hasTakenPhotoToday$ = this.#photos.pipe(
+  hasTakenPhotoToday$ = this.#photos$.pipe(
     map((photos) =>
       photos.find(
         (photo) =>
@@ -44,7 +44,7 @@ export class PhotoService {
       .load()
       .pipe(take(1))
       .subscribe((photos) => {
-        this.#photos.next(photos);
+        this.#photos$.next(photos);
       });
   }
 
@@ -87,11 +87,11 @@ export class PhotoService {
   }
 
   async deletePhoto(name: string) {
-    const newPhotos = this.#photos.value.filter(
+    const newPhotos = this.#photos$.value.filter(
       (photos) => photos.name !== name
     );
 
-    this.#photos.next(newPhotos);
+    this.#photos$.next(newPhotos);
 
     if (this.platform.is('capacitor')) {
       await Filesystem.deleteFile({
@@ -108,9 +108,9 @@ export class PhotoService {
         path: filePath,
         dateTaken: new Date().toISOString(),
       },
-      ...this.#photos.value,
+      ...this.#photos$.value,
     ];
 
-    this.#photos.next(newPhotos);
+    this.#photos$.next(newPhotos);
   }
 }
