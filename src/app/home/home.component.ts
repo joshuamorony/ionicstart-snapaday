@@ -51,14 +51,6 @@ import { PhotoListComponentModule } from './ui/photo-list/photo-list.component';
       </ion-content>
     </ng-container>
   `,
-  styles: [
-    `
-      ion-title img {
-        max-height: 30px;
-        margin-top: 4px;
-      }
-    `,
-  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent {
