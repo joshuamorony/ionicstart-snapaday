@@ -8,19 +8,16 @@ import { Photo } from '../interfaces/photo';
   providedIn: 'root',
 })
 export class StorageService {
-  private storage$ = from(this.ionicStorage.create()).pipe(shareReplay(1));
+  storage$ = from(this.ionicStorage.create()).pipe(shareReplay(1));
+  load$: Observable<Photo[]> = this.storage$.pipe(
+    switchMap((storage) => from(storage.get('photos'))),
+    map((photos) => photos ?? [])
+  );
 
   constructor(private ionicStorage: Storage) {}
 
-  load(): Observable<Photo[]> {
-    return this.storage$.pipe(
-      switchMap((storage) => from(storage.get('photos'))),
-      map((photos) => photos ?? [])
-    );
-  }
-
   save(photos: Photo[]) {
-    this.load()
+    this.load$
       .pipe(
         switchMap(() => this.storage$),
         take(1)

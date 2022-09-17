@@ -35,12 +35,12 @@ describe('StorageService', () => {
     expect(service).toBeTruthy();
   });
 
-  describe('load()', () => {
+  describe('load$', () => {
     it('should return result of get method of storage api', (done) => {
       service = TestBed.inject(StorageService);
       storage = TestBed.inject(Storage);
 
-      service.load().subscribe((result) => {
+      service.load$.subscribe((result) => {
         expect(getMock).toHaveBeenCalledWith('photos');
         expect(result).toEqual(testLoadData);
         done();
@@ -62,7 +62,7 @@ describe('StorageService', () => {
       service = TestBed.inject(StorageService);
       storage = TestBed.inject(Storage);
 
-      service.load().subscribe((result) => {
+      service.load$.subscribe((result) => {
         expect(result).toEqual([]);
         done();
       });
@@ -78,7 +78,7 @@ describe('StorageService', () => {
     it('should pass data to set method of storage api', () => {
       const testData = {};
 
-      service.load().subscribe(() => {
+      service.load$.subscribe(() => {
         service.save(testData as any);
         expect(setMock).toHaveBeenCalledWith('photos', testData);
       });

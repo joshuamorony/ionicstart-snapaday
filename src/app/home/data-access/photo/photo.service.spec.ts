@@ -64,7 +64,7 @@ describe('PhotoService', () => {
         {
           provide: StorageService,
           useValue: {
-            load: jest.fn().mockReturnValue(of(testLoadData)),
+            load$: of(testLoadData),
             save: jest.fn(),
           },
         },
@@ -92,7 +92,7 @@ describe('PhotoService', () => {
     it('should emit true if no photos are present', () => {
       TestBed.overrideProvider(StorageService, {
         useValue: {
-          load: jest.fn().mockReturnValue(of([])),
+          load$: of([]),
           save: jest.fn(),
         },
       });
@@ -109,9 +109,7 @@ describe('PhotoService', () => {
     it('should emit true if there are no photos that have been taken today', () => {
       TestBed.overrideProvider(StorageService, {
         useValue: {
-          load: jest
-            .fn()
-            .mockReturnValue(of([{ dateTaken: new Date(2022, 5, 5) }])),
+          load$: of([{ dateTaken: new Date(2022, 5, 5) }]),
           save: jest.fn(),
         },
       });
@@ -128,7 +126,7 @@ describe('PhotoService', () => {
     it('should emit false if a photo exists that has been taken today', () => {
       TestBed.overrideProvider(StorageService, {
         useValue: {
-          load: jest.fn().mockReturnValue(of([{ dateTaken: new Date() }])),
+          load$: of([{ dateTaken: new Date() }]),
           save: jest.fn(),
         },
       });

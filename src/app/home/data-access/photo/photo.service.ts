@@ -40,12 +40,9 @@ export class PhotoService {
   ) {}
 
   load() {
-    this.storageService
-      .load()
-      .pipe(take(1))
-      .subscribe((photos) => {
-        this.#photos$.next(photos);
-      });
+    this.storageService.load$.pipe(take(1)).subscribe((photos) => {
+      this.#photos$.next(photos);
+    });
   }
 
   async takePhoto() {
