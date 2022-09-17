@@ -11,7 +11,8 @@ export class StorageService {
   storage$ = from(this.ionicStorage.create()).pipe(shareReplay(1));
   load$: Observable<Photo[]> = this.storage$.pipe(
     switchMap((storage) => from(storage.get('photos'))),
-    map((photos) => photos ?? [])
+    map((photos) => photos ?? []),
+    shareReplay(1)
   );
 
   constructor(private ionicStorage: Storage) {}
