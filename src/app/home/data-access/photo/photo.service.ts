@@ -19,7 +19,9 @@ import { Photo } from '../../../shared/interfaces/photo';
 export class PhotoService {
   #photos$ = new BehaviorSubject<Photo[]>([]);
   photos$ = this.#photos$.pipe(
-    tap((photos) => this.storageService.save(photos))
+    tap((photos) => {
+      this.storageService.save(photos);
+    })
   );
 
   hasTakenPhotoToday$ = this.#photos$.pipe(

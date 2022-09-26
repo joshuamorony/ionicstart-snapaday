@@ -10,6 +10,7 @@ import {
 import { IonicModule, ModalController } from '@ionic/angular';
 import {
   BehaviorSubject,
+  EMPTY,
   from,
   iif,
   merge,
@@ -21,10 +22,13 @@ import {
   bufferToggle,
   concatMap,
   delay,
+  delayWhen,
   filter,
+  map,
   retryWhen,
   switchMap,
   takeUntil,
+  tap,
 } from 'rxjs/operators';
 import { Photo } from '../shared/interfaces/photo';
 import {
@@ -78,31 +82,19 @@ export class SlideshowComponent {
       of(photo).pipe(
         // Creating a stream for each individual photo
         // will allow us to delay the start of the stream
-        delay(3000)
+        delayWhen(() =>
+          this.paused$.pipe(
+            tap((val) => console.log(val)),
+            switchMap((isPaused) =>
+              isPaused ? of('').pipe(delay(100000)) : of('').pipe(delay(1000))
+            )
+          )
+        )
       )
     )
   );
 
-  buffered$ = this.currentPhoto$.pipe(
-    bufferToggle(this.paused$.pipe(filter((val) => val)), (_) =>
-      this.paused$.pipe(filter((val) => !val))
-    )
-  );
-
-  pausablePhoto$ = this.currentPhoto$.pipe(
-    switchMap(
-      (photo) =>
-        iif(() => this.paused$.value, throwError(new Error()), of(photo)),
-      retryWhen(this.paused$.pipe(filter((val) => !val)))
-    )
-  );
-
-  constructor(protected modalCtrl: ModalController) {
-    // TESTING remove
-    //this.pause$.subscribe((val) => console.log(val));
-    this.buffered$.subscribe((val) => console.log(val));
-    this.pausablePhoto$.subscribe((val) => console.log(val));
-  }
+  constructor(protected modalCtrl: ModalController) {}
 
   @Input() set photos(value: Photo[]) {
     this.currentPhotos$.next([...value].reverse());
