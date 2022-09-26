@@ -2,39 +2,14 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
   Input,
   NgModule,
-  ViewChild,
 } from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
-import {
-  BehaviorSubject,
-  EMPTY,
-  from,
-  iif,
-  merge,
-  of,
-  Subject,
-  throwError,
-} from 'rxjs';
-import {
-  bufferToggle,
-  concatMap,
-  delay,
-  delayWhen,
-  filter,
-  map,
-  retryWhen,
-  switchMap,
-  takeUntil,
-  tap,
-} from 'rxjs/operators';
+import { BehaviorSubject, from, of } from 'rxjs';
+import { concatMap, delay, delayWhen, switchMap, tap } from 'rxjs/operators';
 import { Photo } from '../shared/interfaces/photo';
-import {
-  SlideshowImageComponent,
-  SlideshowImageComponentModule,
-} from './ui/slideshow-image.component';
+import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
 
 @Component({
   selector: 'app-slideshow',
