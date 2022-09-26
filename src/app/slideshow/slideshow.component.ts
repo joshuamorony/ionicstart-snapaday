@@ -2,14 +2,35 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   Input,
   NgModule,
+  ViewChild,
 } from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
-import { BehaviorSubject, from, of } from 'rxjs';
-import { concatMap, delay, switchMap } from 'rxjs/operators';
+import {
+  BehaviorSubject,
+  from,
+  iif,
+  merge,
+  of,
+  Subject,
+  throwError,
+} from 'rxjs';
+import {
+  bufferToggle,
+  concatMap,
+  delay,
+  filter,
+  retryWhen,
+  switchMap,
+  takeUntil,
+} from 'rxjs/operators';
 import { Photo } from '../shared/interfaces/photo';
-import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
+import {
+  SlideshowImageComponent,
+  SlideshowImageComponentModule,
+} from './ui/slideshow-image.component';
 
 @Component({
   selector: 'app-slideshow',
@@ -29,6 +50,8 @@ import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
     </ion-header>
     <ion-content>
       <app-slideshow-image
+        (mousedown)="paused$.next(true)"
+        (mouseup)="paused$.next(false)"
         *ngIf="currentPhoto$ | async as photo"
         [safeResourceUrl]="photo.safeResourceUrl"
       ></app-slideshow-image>
@@ -44,6 +67,8 @@ import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SlideshowComponent {
+  paused$ = new BehaviorSubject(false);
+
   currentPhotos$ = new BehaviorSubject<Photo[]>([]);
   currentPhoto$ = this.currentPhotos$.pipe(
     // Emit one photo at a time
@@ -53,12 +78,31 @@ export class SlideshowComponent {
       of(photo).pipe(
         // Creating a stream for each individual photo
         // will allow us to delay the start of the stream
-        delay(500)
+        delay(3000)
       )
     )
   );
 
-  constructor(protected modalCtrl: ModalController) {}
+  buffered$ = this.currentPhoto$.pipe(
+    bufferToggle(this.paused$.pipe(filter((val) => val)), (_) =>
+      this.paused$.pipe(filter((val) => !val))
+    )
+  );
+
+  pausablePhoto$ = this.currentPhoto$.pipe(
+    switchMap(
+      (photo) =>
+        iif(() => this.paused$.value, throwError(new Error()), of(photo)),
+      retryWhen(this.paused$.pipe(filter((val) => !val)))
+    )
+  );
+
+  constructor(protected modalCtrl: ModalController) {
+    // TESTING remove
+    //this.pause$.subscribe((val) => console.log(val));
+    this.buffered$.subscribe((val) => console.log(val));
+    this.pausablePhoto$.subscribe((val) => console.log(val));
+  }
 
   @Input() set photos(value: Photo[]) {
     this.currentPhotos$.next([...value].reverse());

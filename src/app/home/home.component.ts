@@ -18,7 +18,6 @@ import { PhotoListComponentModule } from './ui/photo-list/photo-list.component';
           <ion-title>Snapaday</ion-title>
           <ion-buttons slot="end">
             <ion-button
-              [disabled]="vm.hasTakenPhotoToday === true"
               (click)="photoService.takePhoto()"
               data-test="take-photo-button"
             >
