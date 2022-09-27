@@ -15,8 +15,13 @@ import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
   selector: 'app-slideshow',
   template: `
     <ion-header>
-      <ion-toolbar color="danger">
-        <ion-title>Play</ion-title>
+      <ion-toolbar
+        *ngIf="{ paused: paused$ | async } as pause"
+        [color]="pause.paused ? 'success' : 'danger'"
+      >
+        <ion-title>{{
+          pause.paused ? 'Look at this gorgeous specimen' : 'Play'
+        }}</ion-title>
         <ion-buttons slot="end">
           <ion-button
             data-test="slideshow-close-button"
@@ -59,7 +64,6 @@ export class SlideshowComponent {
         // will allow us to delay the start of the stream
         delayWhen(() =>
           this.paused$.pipe(
-            tap((val) => console.log(val)),
             switchMap((isPaused) =>
               isPaused ? of('').pipe(delay(100000)) : of('').pipe(delay(1000))
             )
