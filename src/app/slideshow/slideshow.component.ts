@@ -6,7 +6,7 @@ import {
   NgModule,
 } from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
-import { BehaviorSubject, from, of } from 'rxjs';
+import { BehaviorSubject, from, of, timer } from 'rxjs';
 import { concatMap, delay, delayWhen, switchMap, tap } from 'rxjs/operators';
 import { Photo } from '../shared/interfaces/photo';
 import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
@@ -64,9 +64,7 @@ export class SlideshowComponent {
         // will allow us to delay the start of the stream
         delayWhen(() =>
           this.paused$.pipe(
-            switchMap((isPaused) =>
-              isPaused ? of('').pipe(delay(100000)) : of('').pipe(delay(1000))
-            )
+            switchMap((isPaused) => (isPaused ? timer(100000) : timer(1000)))
           )
         )
       )
