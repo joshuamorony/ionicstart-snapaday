@@ -7,7 +7,14 @@ import {
 } from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { BehaviorSubject, from, of, timer } from 'rxjs';
-import { concatMap, delay, delayWhen, switchMap, tap } from 'rxjs/operators';
+import {
+  concatMap,
+  delay,
+  delayWhen,
+  startWith,
+  switchMap,
+  tap,
+} from 'rxjs/operators';
 import { Photo } from '../shared/interfaces/photo';
 import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
 
@@ -71,7 +78,9 @@ export class SlideshowComponent {
     )
   );
 
-  constructor(protected modalCtrl: ModalController) {}
+  constructor(protected modalCtrl: ModalController) {
+    const test = of('there').pipe(startWith('hello'), delay(2000));
+  }
 
   @Input() set photos(value: Photo[]) {
     this.currentPhotos$.next([...value].reverse());
