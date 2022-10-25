@@ -59,28 +59,17 @@ import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
 })
 export class SlideshowComponent {
   paused$ = new BehaviorSubject(false);
+  delay$ = this.paused$.pipe(
+    switchMap((isPaused) => timer(isPaused ? 100000 : 1000))
+  );
 
   currentPhotos$ = new BehaviorSubject<Photo[]>([]);
   currentPhoto$ = this.currentPhotos$.pipe(
-    // Emit one photo at a time
     switchMap((photos) => from(photos)),
-    concatMap((photo) =>
-      // Create a new stream for each individual photo
-      of(photo).pipe(
-        // Creating a stream for each individual photo
-        // will allow us to delay the start of the stream
-        delayWhen(() =>
-          this.paused$.pipe(
-            switchMap((isPaused) => (isPaused ? timer(100000) : timer(1000)))
-          )
-        )
-      )
-    )
+    concatMap((photo) => of(photo).pipe(delayWhen(() => this.delay$)))
   );
 
-  constructor(protected modalCtrl: ModalController) {
-    const test = of('there').pipe(startWith('hello'), delay(2000));
-  }
+  constructor(protected modalCtrl: ModalController) {}
 
   @Input() set photos(value: Photo[]) {
     this.currentPhotos$.next([...value].reverse());
