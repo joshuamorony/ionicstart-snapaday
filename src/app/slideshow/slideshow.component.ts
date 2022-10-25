@@ -17,7 +17,7 @@ import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
   selector: 'app-slideshow',
   template: `
     <ion-header>
-      <ion-toolbar color="danger">
+      <ion-toolbar [color]="isPaused ? 'success' : 'danger'">
         <ion-title>Play</ion-title>
         <ion-buttons slot="end">
           <ion-button
@@ -51,6 +51,7 @@ export class SlideshowComponent implements OnChanges {
   @Input() photos!: Photo[];
 
   public currentPhoto?: Photo;
+  public isPaused = false;
   private intervalRef?: number;
   private photoIndex = 0;
 
@@ -86,10 +87,12 @@ export class SlideshowComponent implements OnChanges {
   }
 
   pause() {
+    this.isPaused = true;
     clearInterval(this.intervalRef);
   }
 
   unpause() {
+    this.isPaused = false;
     this.start();
   }
 }
