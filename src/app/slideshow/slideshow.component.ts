@@ -1,9 +1,11 @@
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   Input,
   NgModule,
+  OnChanges,
 } from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { BehaviorSubject, from, of } from 'rxjs';
@@ -29,8 +31,8 @@ import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
     </ion-header>
     <ion-content>
       <app-slideshow-image
-        *ngIf="currentPhoto$ | async as photo"
-        [safeResourceUrl]="photo.safeResourceUrl"
+        *ngIf="currentPhoto"
+        [safeResourceUrl]="currentPhoto.safeResourceUrl"
       ></app-slideshow-image>
     </ion-content>
   `,
@@ -43,26 +45,48 @@ import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SlideshowComponent {
-  currentPhotos$ = new BehaviorSubject<Photo[]>([]);
-  currentPhoto$ = this.currentPhotos$.pipe(
-    // Emit one photo at a time
-    switchMap((photos) => from(photos)),
-    concatMap((photo) =>
-      // Create a new stream for each individual photo
-      of(photo).pipe(
-        // Creating a stream for each individual photo
-        // will allow us to delay the start of the stream
-        delay(500)
-      )
-    )
-  );
+export class SlideshowComponent implements OnChanges {
+  @Input() photos!: Photo[];
 
-  constructor(protected modalCtrl: ModalController) {}
+  public currentPhoto?: Photo;
+  private intervalRef?: number;
 
-  @Input() set photos(value: Photo[]) {
-    this.currentPhotos$.next([...value].reverse());
+  constructor(
+    protected modalCtrl: ModalController,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnChanges() {
+    if (this.intervalRef) {
+      clearInterval(this.intervalRef);
+    }
+
+    this.currentPhoto = this.photos[this.photos.length];
+
+    let photoIndex = this.photos.length - 1;
+    this.intervalRef = setInterval(() => {
+      this.currentPhoto = this.photos[photoIndex];
+
+      this.cdr.markForCheck();
+
+      if (photoIndex < 1) {
+        clearInterval(this.intervalRef);
+      }
+
+      photoIndex--;
+    }, 500);
   }
+
+  // currentPhotos$ = new BehaviorSubject<Photo[]>([]);
+
+  // currentPhoto$ = this.currentPhotos$.pipe(
+  //   switchMap((photos) => from(photos)),
+  //   concatMap((photo) => of(photo).pipe(delay(500)))
+  // );
+
+  // @Input() set photos(value: Photo[]) {
+  //   this.currentPhotos$.next([...value].reverse());
+  // }
 }
 
 @NgModule({
