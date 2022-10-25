@@ -31,6 +31,8 @@ import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
     </ion-header>
     <ion-content>
       <app-slideshow-image
+        (mousedown)="pause()"
+        (mouseup)="unpause()"
         *ngIf="currentPhoto"
         [safeResourceUrl]="currentPhoto.safeResourceUrl"
       ></app-slideshow-image>
@@ -50,6 +52,7 @@ export class SlideshowComponent implements OnChanges {
 
   public currentPhoto?: Photo;
   private intervalRef?: number;
+  private photoIndex = 0;
 
   constructor(
     protected modalCtrl: ModalController,
@@ -61,32 +64,34 @@ export class SlideshowComponent implements OnChanges {
       clearInterval(this.intervalRef);
     }
 
-    this.currentPhoto = this.photos[this.photos.length];
+    this.photoIndex = this.photos.length - 1;
+    this.currentPhoto = this.photos[this.photoIndex];
+    this.photoIndex--;
 
-    let photoIndex = this.photos.length - 1;
+    this.start();
+  }
+
+  start() {
     this.intervalRef = setInterval(() => {
-      this.currentPhoto = this.photos[photoIndex];
+      this.currentPhoto = this.photos[this.photoIndex];
 
       this.cdr.markForCheck();
 
-      if (photoIndex < 1) {
+      if (this.photoIndex < 1) {
         clearInterval(this.intervalRef);
       }
 
-      photoIndex--;
-    }, 500);
+      this.photoIndex--;
+    }, 2000);
   }
 
-  // currentPhotos$ = new BehaviorSubject<Photo[]>([]);
+  pause() {
+    clearInterval(this.intervalRef);
+  }
 
-  // currentPhoto$ = this.currentPhotos$.pipe(
-  //   switchMap((photos) => from(photos)),
-  //   concatMap((photo) => of(photo).pipe(delay(500)))
-  // );
-
-  // @Input() set photos(value: Photo[]) {
-  //   this.currentPhotos$.next([...value].reverse());
-  // }
+  unpause() {
+    this.start();
+  }
 }
 
 @NgModule({
