@@ -45,7 +45,7 @@ import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
       <ng-container *ngIf="currentPhoto$ | async as photo">
         <app-slideshow-image
           (mousedown)="paused$.next(true)"
-          (mouseup)="paused$.next(false); manualPhoto$.next(null)"
+          (mouseup)="paused$.next(false); staticPhoto$.next(null)"
           [safeResourceUrl]="photo.safeResourceUrl"
         ></app-slideshow-image>
         <ion-button (click)="prevPhoto(photo)">Prev</ion-button>
@@ -63,33 +63,40 @@ import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SlideshowComponent {
+  currentPhotos$ = new BehaviorSubject<Photo[]>([]);
+
   paused$ = new BehaviorSubject(false); // pause/play slideshow
   delayTime$ = new BehaviorSubject(1000); // time between photos
   loop$ = new BehaviorSubject(true); // loop slideshow
-  manualPhoto$ = new BehaviorSubject<Photo | null>(null); // set photo manually
+  staticPhoto$ = new BehaviorSubject<Photo | null>(null); // set photo manually
 
-  delay$ = combineLatest([this.paused$, this.delayTime$]).pipe(
+  // If stream is paused delay is infinite, otherwise it is the value of delayTime$
+  calculateDelay$ = combineLatest([this.paused$, this.delayTime$]).pipe(
     switchMap(([isPaused, delayTime]) =>
       iif(() => isPaused, NEVER, timer(delayTime))
     )
   );
 
-  currentPhotos$ = new BehaviorSubject<Photo[]>([]);
+  // Emit one photo at a time with a delay
+  playCurrentPhotos$ = this.currentPhotos$.pipe(
+    switchMap((photos) => from(photos)),
+    concatMap((photo) => of(photo).pipe(delayWhen(() => this.calculateDelay$)))
+  );
 
-  currentPhoto$ = combineLatest([this.currentPhotos$, this.manualPhoto$]).pipe(
-    switchMap(([_, manualPhoto]) =>
+  currentPhoto$ = combineLatest([this.currentPhotos$, this.staticPhoto$]).pipe(
+    switchMap(([_, staticPhoto]) =>
       iif(
-        // If manual photo set, use that instead
-        () => manualPhoto !== null,
-        of(manualPhoto),
-        this.playCurrentPhotos().pipe(
+        // Determine whether to show static photo or slideshow
+        () => staticPhoto !== null,
+        of(staticPhoto),
+        this.playCurrentPhotos$.pipe(
           // Play recursively if loop is set to true
           expand((photo) => {
             const currentPhotos = this.currentPhotos$.value;
             const isLastPhoto =
               photo === currentPhotos[currentPhotos.length - 1];
             return isLastPhoto && this.loop$.value
-              ? this.playCurrentPhotos()
+              ? this.playCurrentPhotos$
               : EMPTY;
           })
         )
@@ -103,13 +110,6 @@ export class SlideshowComponent {
     this.currentPhotos$.next([...value].reverse());
   }
 
-  playCurrentPhotos() {
-    return this.currentPhotos$.pipe(
-      switchMap((photos) => from(photos)),
-      concatMap((photo) => of(photo).pipe(delayWhen(() => this.delay$)))
-    );
-  }
-
   nextPhoto(currentPhoto: Photo) {
     this.paused$.next(true);
 
@@ -118,7 +118,7 @@ export class SlideshowComponent {
     const nextIndex =
       currentIndex < currentPhotos.length - 1 ? currentIndex + 1 : 0;
 
-    this.manualPhoto$.next(currentPhotos[nextIndex]);
+    this.staticPhoto$.next(currentPhotos[nextIndex]);
   }
 
   prevPhoto(currentPhoto: Photo) {
@@ -129,7 +129,7 @@ export class SlideshowComponent {
     const prevIndex =
       currentIndex > 0 ? currentIndex - 1 : currentPhotos.length - 1;
 
-    this.manualPhoto$.next(currentPhotos[prevIndex]);
+    this.staticPhoto$.next(currentPhotos[prevIndex]);
   }
 }
 
