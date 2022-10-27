@@ -14,23 +14,9 @@ import {
   iif,
   NEVER,
   of,
-  race,
-  Subject,
   timer,
 } from 'rxjs';
-import {
-  concatMap,
-  delay,
-  delayWhen,
-  expand,
-  finalize,
-  repeat,
-  repeatWhen,
-  startWith,
-  switchMap,
-  tap,
-  withLatestFrom,
-} from 'rxjs/operators';
+import { concatMap, delayWhen, expand, switchMap } from 'rxjs/operators';
 import { Photo } from '../shared/interfaces/photo';
 import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
 
