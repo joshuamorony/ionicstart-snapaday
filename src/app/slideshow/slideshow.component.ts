@@ -5,7 +5,12 @@ import {
   Input,
   NgModule,
 } from '@angular/core';
-import { IonicModule, ModalController } from '@ionic/angular';
+import {
+  IonicModule,
+  ModalController,
+  RangeCustomEvent,
+  ToggleCustomEvent,
+} from '@ionic/angular';
 import {
   BehaviorSubject,
   combineLatest,
@@ -48,8 +53,24 @@ import { SlideshowImageComponentModule } from './ui/slideshow-image.component';
           (mouseup)="paused$.next(false); staticPhoto$.next(null)"
           [safeResourceUrl]="photo.safeResourceUrl"
         ></app-slideshow-image>
-        <ion-button (click)="prevPhoto(photo)">Prev</ion-button>
-        <ion-button (click)="nextPhoto(photo)">Next</ion-button>
+        <ion-card>
+          <ion-card-content>
+            <ion-button (click)="prevPhoto(photo)">Prev</ion-button>
+            <ion-button (click)="nextPhoto(photo)">Next</ion-button>
+            <h2>Speed</h2>
+            <ion-range
+              (ionChange)="changeDelay($event)"
+              min="50"
+              max="1000"
+              [value]="delayTime$.value"
+            ></ion-range>
+            <h2>Loop</h2>
+            <ion-toggle
+              [checked]="loop$.value"
+              (ionChange)="toggleLoop($event)"
+            ></ion-toggle>
+          </ion-card-content>
+        </ion-card>
       </ng-container>
     </ion-content>
   `,
@@ -90,7 +111,7 @@ export class SlideshowComponent {
         () => staticPhoto !== null,
         of(staticPhoto),
         this.playCurrentPhotos$.pipe(
-          // Play recursively if loop is set to true
+          // Play recursively when last photo is reached if loop is set to true
           expand((photo) => {
             const currentPhotos = this.currentPhotos$.value;
             const isLastPhoto =
@@ -130,6 +151,14 @@ export class SlideshowComponent {
       currentIndex > 0 ? currentIndex - 1 : currentPhotos.length - 1;
 
     this.staticPhoto$.next(currentPhotos[prevIndex]);
+  }
+
+  changeDelay(ev: Event) {
+    this.delayTime$.next((ev as RangeCustomEvent).detail.value as number);
+  }
+
+  toggleLoop(ev: Event) {
+    this.loop$.next((ev as ToggleCustomEvent).detail.checked);
   }
 }
 
