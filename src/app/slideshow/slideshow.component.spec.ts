@@ -6,6 +6,7 @@ import {
   tick,
   waitForAsync,
 } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { IonicModule } from '@ionic/angular';
 import { Photo } from '../shared/interfaces/photo';
@@ -45,30 +46,37 @@ describe('SlideshowComponent', () => {
   });
 
   describe('@Input() photos', () => {
-    it('when it is launched, it should show every photo in sequence', fakeAsync(() => {
-      const observerSpy = subscribeSpyTo(component.currentPhoto$);
+    it('should set safeResourceUrl of app-slideshow-image to each of the photos in the array with delay', fakeAsync(() => {
       component.photos = testPhotos;
       fixture.detectChanges();
 
-      expect(observerSpy.getLastValue()).toBe(undefined);
-
-      tick(500);
-
-      expect(observerSpy.getLastValue()?.safeResourceUrl).toEqual(
-        testPhotos[testPhotos.length - 1].safeResourceUrl
+      expect(fixture.debugElement.query(By.css('app-slideshow-image'))).toBe(
+        null
       );
 
-      tick(500);
+      tick(1000);
+      fixture.detectChanges();
 
-      expect(observerSpy.getLastValue()?.safeResourceUrl).toEqual(
-        testPhotos[testPhotos.length - 2].safeResourceUrl
-      );
+      expect(
+        fixture.debugElement.query(By.css('app-slideshow-image'))
+          .componentInstance.safeResourceUrl
+      ).toBe(testPhotos[2].safeResourceUrl);
 
-      tick(500);
+      tick(1000);
+      fixture.detectChanges();
 
-      expect(observerSpy.getLastValue()?.safeResourceUrl).toEqual(
-        testPhotos[testPhotos.length - 3].safeResourceUrl
-      );
+      expect(
+        fixture.debugElement.query(By.css('app-slideshow-image'))
+          .componentInstance.safeResourceUrl
+      ).toBe(testPhotos[1].safeResourceUrl);
+
+      tick(1000);
+      fixture.detectChanges();
+
+      expect(
+        fixture.debugElement.query(By.css('app-slideshow-image'))
+          .componentInstance.safeResourceUrl
+      ).toBe(testPhotos[0].safeResourceUrl);
     }));
   });
 });
