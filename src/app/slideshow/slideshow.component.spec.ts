@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy } from '@angular/core';
 import {
   ComponentFixture,
+  discardPeriodicTasks,
   fakeAsync,
   TestBed,
   tick,
@@ -69,5 +70,42 @@ describe('SlideshowComponent', () => {
         expect(getResourceUrl()).toBe(testPhotos[i].safeResourceUrl);
       }
     }));
+
+    describe('paused$', () => {
+      it('should go to next photo if false', fakeAsync(() => {
+        component.paused$.next(false);
+        component.photos = testPhotos;
+        fixture.detectChanges();
+
+        waitForDelay();
+        expect(getResourceUrl()).toBe(
+          testPhotos[testPhotos.length - 1].safeResourceUrl
+        );
+        waitForDelay();
+        expect(getResourceUrl()).toBe(
+          testPhotos[testPhotos.length - 2].safeResourceUrl
+        );
+
+        discardPeriodicTasks();
+      }));
+
+      it('should not go to next photo if true', fakeAsync(() => {
+        component.photos = testPhotos;
+        fixture.detectChanges();
+
+        waitForDelay();
+        component.paused$.next(true);
+
+        expect(getResourceUrl()).toBe(
+          testPhotos[testPhotos.length - 1].safeResourceUrl
+        );
+        waitForDelay();
+        expect(getResourceUrl()).toBe(
+          testPhotos[testPhotos.length - 1].safeResourceUrl
+        );
+
+        discardPeriodicTasks();
+      }));
+    });
   });
 });
