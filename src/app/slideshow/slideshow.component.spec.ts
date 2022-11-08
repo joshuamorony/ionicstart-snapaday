@@ -46,37 +46,28 @@ describe('SlideshowComponent', () => {
   });
 
   describe('@Input() photos', () => {
+    const getSlideshowImage = () =>
+      fixture.debugElement.query(By.css('app-slideshow-image'));
+
+    const getResourceUrl = () =>
+      getSlideshowImage().componentInstance.safeResourceUrl;
+
+    const waitForDelay = () => {
+      tick(1000);
+      fixture.detectChanges();
+    };
+
+    beforeEach(() => {
+      component.paused$.next(false);
+    });
+
     it('should set safeResourceUrl of app-slideshow-image to each of the photos in the array with delay', fakeAsync(() => {
       component.photos = testPhotos;
-      fixture.detectChanges();
 
-      expect(fixture.debugElement.query(By.css('app-slideshow-image'))).toBe(
-        null
-      );
-
-      tick(1000);
-      fixture.detectChanges();
-
-      expect(
-        fixture.debugElement.query(By.css('app-slideshow-image'))
-          .componentInstance.safeResourceUrl
-      ).toBe(testPhotos[2].safeResourceUrl);
-
-      tick(1000);
-      fixture.detectChanges();
-
-      expect(
-        fixture.debugElement.query(By.css('app-slideshow-image'))
-          .componentInstance.safeResourceUrl
-      ).toBe(testPhotos[1].safeResourceUrl);
-
-      tick(1000);
-      fixture.detectChanges();
-
-      expect(
-        fixture.debugElement.query(By.css('app-slideshow-image'))
-          .componentInstance.safeResourceUrl
-      ).toBe(testPhotos[0].safeResourceUrl);
+      for (let i = testPhotos.length - 1; i >= 0; i--) {
+        waitForDelay();
+        expect(getResourceUrl()).toBe(testPhotos[i].safeResourceUrl);
+      }
     }));
   });
 });
