@@ -65,4 +65,6 @@ export class AppComponent implements OnInit {
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule {
+  // more junk
+}
