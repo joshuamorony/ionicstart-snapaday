@@ -32,6 +32,7 @@
     "@capacitor/status-bar": "1.0.8",
     "@hirez_io/observer-spy": "^2.2.0",
     "@ionic/angular": "^6.1.9",
+    "@ionic/some-package": "1.0.0",
     "@ionic/pwa-elements": "^3.1.1",
     "@ionic/storage-angular": "^3.0.6",
     "localforage-cordovasqlitedriver": "^1.8.0",
